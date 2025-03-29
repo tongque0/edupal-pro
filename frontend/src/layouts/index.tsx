@@ -1,8 +1,9 @@
-import React, { memo, useEffect } from "react";
+import React, { memo } from "react";
 import { TopLayout } from "./components/applayout";
+
 export default memo(() => {
   return (
-    <div className="app-layout">
+    <div className="w-full max-w mx-auto">
       <TopLayout />
     </div>
   );
