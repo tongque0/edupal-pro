@@ -16,8 +16,8 @@ export default function Home() {
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-b from-background to-muted relative">
           {/* 背景图片和蒙层 */}
           <div
-            className="absolute inset-0 bg-cover bg-center opacity-50"
-            style={{ backgroundImage: "url()" }}
+            className="absolute inset-0 bg-cover bg-center opacity-15"
+            style={{ backgroundImage: "url(Https://api.kdcc.cn)" }}
           ></div>
           <div className="container mx-auto px-4 md:px-6 relative z-10">
             <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 xl:grid-cols-2">
