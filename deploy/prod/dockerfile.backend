@@ -1,0 +1,14 @@
+FROM python:3.12-slim
+
+# 安装 uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# 将应用程序复制到容器中
+COPY . /app
+
+# 安装应用程序依赖
+WORKDIR /app
+RUN uv sync --frozen --no-cache
+
+# 运行应用程序
+CMD ["/app/.venv/bin/fastapi", "run", "app/main.py", "--port", "80", "--host", "0.0.0.0"]

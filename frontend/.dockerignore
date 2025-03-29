@@ -1,0 +1,40 @@
+# 忽略 node_modules 目录
+node_modules
+
+# 忽略构建产物
+/dist
+/build
+/.next
+/.nuxt
+/.angular
+
+# 忽略日志文件
+*.log
+
+# 忽略本地配置文件
+*.env
+.env.local
+.env.*.local
+.vscode/
+.idea/
+
+# 忽略 Git 文件
+.git
+.gitignore
+
+# 忽略 Docker 文件
+Dockerfile
+docker-compose.yml
+
+# 忽略临时文件
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# 忽略操作系统文件
+.DS_Store
+Thumbs.db
+
+# 如果使用了缓存的构建工具（如 webpack, babel），可以忽略以下缓存文件
+.cache/
+*.tgz

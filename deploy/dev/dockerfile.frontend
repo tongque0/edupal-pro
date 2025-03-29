@@ -1,0 +1,18 @@
+FROM node:alpine
+
+WORKDIR /app
+
+# 启用 pnpm 并设置淘宝镜像源
+RUN corepack enable && \
+    corepack prepare pnpm@latest --activate && \
+    pnpm config set registry https://registry.npmmirror.com
+RUN npm install -g cnpm --registry=https://registry.npmmirror.com
+# 拷贝依赖文件并安装依赖
+COPY . .
+RUN cnpm install
+
+# 拷贝其他项目文件
+
+EXPOSE 5173
+
+CMD ["pnpm", "dev"]

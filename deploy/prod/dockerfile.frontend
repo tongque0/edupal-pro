@@ -1,0 +1,9 @@
+FROM nginx:alpine
+
+# 将dist目录下的文件复制到nginx的html目录下
+COPY dist/ /usr/share/nginx/html/
+
+EXPOSE 80
+
+# 启动nginx
+CMD ["nginx", "-g", "daemon off;"]
