@@ -20,9 +20,9 @@ clean:
 # 前端
 # 执行 pnpm dlx shadcn@canary add 命令
 # $(filter-out $@,$(MAKECMDGOALS)) 过滤掉 "add"，只保留后面的参数
-# 例如：make add button 会变成 pnpm dlx shadcn@canary add button
+# 例如：make add button 会变成 pnpm dlx shadcn@latest add button
 add:
-	@cd frontend && pnpm dlx shadcn@canary add $(filter-out $@,$(MAKECMDGOALS))
+	@cd frontend && pnpm dlx shadcn@latest add $(filter-out $@,$(MAKECMDGOALS))
 # 捕获所有未定义的目标，避免 make 误报错误
 %:
 	@:
