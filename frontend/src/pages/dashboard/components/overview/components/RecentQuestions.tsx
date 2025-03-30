@@ -4,18 +4,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 
 const RecentQuestions = () => {
   const recentQuestions = [
-    { question: "What is the capital of France?", subject: "Geography", type: "Multiple Choice" },
-    { question: "Who wrote 'To Kill a Mockingbird'?", subject: "Literature", type: "Multiple Choice" },
-    { question: "What is the boiling point of water?", subject: "Science", type: "True/False" },
-    { question: "In which year did the Titanic sink?", subject: "History", type: "Multiple Choice" },
-    { question: "What is the largest planet in our solar system?", subject: "Astronomy", type: "Multiple Choice" },
+    { question: "法国的首都是哪里？", subject: "地理", type: "选择题" },
+    { question: "《杀死一只知更鸟》的作者是谁？", subject: "文学", type: "选择题" },
+    { question: "水的沸点是多少？", subject: "科学", type: "判断题" },
+    { question: "泰坦尼克号沉没于哪一年？", subject: "历史", type: "选择题" },
+    { question: "太阳系中最大的行星是什么？", subject: "天文学", type: "选择题" },
   ];
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent Questions</CardTitle>
-        <CardDescription>Questions you've recently generated or interacted with</CardDescription>
+        <CardTitle>最近的问题</CardTitle>
+        <CardDescription>您最近生成或互动过的问题</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -26,7 +26,7 @@ const RecentQuestions = () => {
                 <p className="text-sm text-muted-foreground">{item.subject} • {item.type}</p>
               </div>
               <Link to={`/question/${i}`}>
-                <Button variant="ghost" size="sm">View</Button>
+                <Button variant="ghost" size="sm">查看</Button>
               </Link>
             </div>
           ))}
@@ -34,7 +34,7 @@ const RecentQuestions = () => {
       </CardContent>
       <CardFooter>
         <Link to="/question-bank">
-          <Button variant="outline">View All Questions</Button>
+          <Button variant="outline">查看所有问题</Button>
         </Link>
       </CardFooter>
     </Card>

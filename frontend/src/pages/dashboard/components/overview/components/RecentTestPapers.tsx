@@ -4,18 +4,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 
 const RecentTestPapers = () => {
   const recentTestPapers = [
-    { title: "Geography Quiz 1", questions: 10, created: "2 days ago" },
-    { title: "History Exam 2025", questions: 15, created: "1 week ago" },
-    { title: "Maths Test - Chapter 3", questions: 20, created: "5 days ago" },
-    { title: "Science Quiz - Physics", questions: 12, created: "3 days ago" },
-    { title: "Literature Exam 1", questions: 8, created: "1 month ago" },
+    { title: "地理测验 1", questions: 10, created: "2 天前" },
+    { title: "2025 历史考试", questions: 15, created: "1 周前" },
+    { title: "数学测试 - 第 3 章", questions: 20, created: "5 天前" },
+    { title: "科学测验 - 物理", questions: 12, created: "3 天前" },
+    { title: "文学考试 1", questions: 8, created: "1 个月前" },
   ];
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent Test Papers</CardTitle>
-        <CardDescription>Test papers you've recently created or viewed</CardDescription>
+        <CardTitle>最近的试卷</CardTitle>
+        <CardDescription>您最近创建或查看的试卷</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -23,10 +23,10 @@ const RecentTestPapers = () => {
             <div key={i} className="flex items-center justify-between border-b pb-2">
               <div>
                 <p className="font-medium">{item.title}</p>
-                <p className="text-sm text-muted-foreground">{item.questions} questions • Created {item.created}</p>
+                <p className="text-sm text-muted-foreground">{item.questions} 道题 • 创建于 {item.created}</p>
               </div>
               <Link to={`/test-paper/${i}`}>
-                <Button variant="ghost" size="sm">View</Button>
+                <Button variant="ghost" size="sm">查看</Button>
               </Link>
             </div>
           ))}
@@ -34,7 +34,7 @@ const RecentTestPapers = () => {
       </CardContent>
       <CardFooter>
         <Link to="/test-papers">
-          <Button variant="outline">View All Test Papers</Button>
+          <Button variant="outline">查看所有试卷</Button>
         </Link>
       </CardFooter>
     </Card>

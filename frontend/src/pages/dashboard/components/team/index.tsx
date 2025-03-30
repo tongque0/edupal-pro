@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Brain, Clock, Eye, FileText, Plus, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+
 const TeamsSection = () => {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -28,42 +29,39 @@ const TeamsSection = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>My Teams</CardTitle>
-              <CardDescription>
-                Teams and organizations you're a member of
-              </CardDescription>
+              <CardTitle>我的团队</CardTitle>
+              <CardDescription>您所属的团队和组织</CardDescription>
             </div>
             <div className="flex gap-2">
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm">
                     <Plus className="mr-2 h-4 w-4" />
-                    Join Team
+                    加入团队
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Join a Team</DialogTitle>
+                    <DialogTitle>加入团队</DialogTitle>
                     <DialogDescription>
-                      Enter a team code to join an existing team or
-                      organization.
+                      输入团队代码以加入现有团队或组织。
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
                     <div className="space-y-2">
-                      <Label htmlFor="team-code">Team Code</Label>
-                      <Input id="team-code" placeholder="Enter team code" />
+                      <Label htmlFor="team-code">团队代码</Label>
+                      <Input id="team-code" placeholder="请输入团队代码" />
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button>Join Team</Button>
+                    <Button>加入团队</Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
               <Link to="/create-team">
                 <Button size="sm">
                   <Plus className="mr-2 h-4 w-4" />
-                  Create Team
+                  创建团队
                 </Button>
               </Link>
             </div>
@@ -74,32 +72,30 @@ const TeamsSection = () => {
             {[
               {
                 id: 1,
-                name: "Physics Study Group",
-                description:
-                  "A group for studying physics concepts and problems",
+                name: "物理学习小组",
+                description: "一个学习物理概念和问题的小组",
                 members: 24,
                 questions: 156,
-                role: "Member",
-                joinedDate: "2 months ago",
+                role: "成员",
+                joinedDate: "2个月前",
               },
               {
                 id: 2,
-                name: "Math Competition Team",
-                description:
-                  "Preparation for upcoming mathematics competitions",
+                name: "数学竞赛团队",
+                description: "为即将到来的数学竞赛做准备",
                 members: 18,
                 questions: 230,
-                role: "Admin",
-                joinedDate: "3 months ago",
+                role: "管理员",
+                joinedDate: "3个月前",
               },
               {
                 id: 3,
-                name: "Biology Research Club",
-                description: "Collaborative research and study in biology",
+                name: "生物研究俱乐部",
+                description: "在生物学领域进行协作研究和学习",
                 members: 32,
                 questions: 178,
-                role: "Member",
-                joinedDate: "1 month ago",
+                role: "成员",
+                joinedDate: "1个月前",
               },
             ].map((team) => (
               <Card key={team.id} className="overflow-hidden">
@@ -113,7 +109,7 @@ const TeamsSection = () => {
                         </p>
                       </div>
                       <Badge
-                        variant={team.role === "Admin" ? "default" : "outline"}
+                        variant={team.role === "管理员" ? "default" : "outline"}
                       >
                         {team.role}
                       </Badge>
@@ -121,15 +117,15 @@ const TeamsSection = () => {
                     <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm">
                       <div className="flex items-center">
                         <User className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
-                        <span>{team.members} members</span>
+                        <span>{team.members} 名成员</span>
                       </div>
                       <div className="flex items-center">
                         <Brain className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
-                        <span>{team.questions} questions</span>
+                        <span>{team.questions} 个问题</span>
                       </div>
                       <div className="flex items-center">
                         <Clock className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
-                        <span>Joined {team.joinedDate}</span>
+                        <span>{team.joinedDate} 加入</span>
                       </div>
                     </div>
                   </div>
@@ -140,7 +136,7 @@ const TeamsSection = () => {
                         className="w-full justify-start"
                       >
                         <Eye className="mr-2 h-4 w-4" />
-                        View Team
+                        查看团队
                       </Button>
                     </Link>
                     <Link to={`/team/${team.id}/questions`}>
@@ -149,7 +145,7 @@ const TeamsSection = () => {
                         className="w-full justify-start"
                       >
                         <Brain className="mr-2 h-4 w-4" />
-                        Questions
+                        问题
                       </Button>
                     </Link>
                     <Link to={`/team/${team.id}/tests`}>
@@ -158,7 +154,7 @@ const TeamsSection = () => {
                         className="w-full justify-start"
                       >
                         <FileText className="mr-2 h-4 w-4" />
-                        Test Papers
+                        测试卷
                       </Button>
                     </Link>
                   </div>
@@ -169,48 +165,48 @@ const TeamsSection = () => {
         </CardContent>
         <CardFooter>
           <Link to="/teams">
-            <Button variant="outline">View All Teams</Button>
+            <Button variant="outline">查看所有团队</Button>
           </Link>
         </CardFooter>
       </Card>
 
       <Card className="col-span-1">
         <CardHeader>
-          <CardTitle>Team Activity</CardTitle>
-          <CardDescription>Recent activity in your teams</CardDescription>
+          <CardTitle>团队活动</CardTitle>
+          <CardDescription>您团队的最近活动</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {[
               {
-                team: "Physics Study Group",
-                action: "New question added",
-                content: "What is the formula for calculating kinetic energy?",
-                time: "2 hours ago",
+                team: "物理学习小组",
+                action: "新增问题",
+                content: "计算动能的公式是什么？",
+                time: "2小时前",
               },
               {
-                team: "Math Competition Team",
-                action: "New test paper",
-                content: "Algebra Practice Test #3",
-                time: "1 day ago",
+                team: "数学竞赛团队",
+                action: "新增测试卷",
+                content: "代数练习测试卷 #3",
+                time: "1天前",
               },
               {
-                team: "Biology Research Club",
-                action: "New member joined",
-                content: "Sarah Johnson joined the team",
-                time: "2 days ago",
+                team: "生物研究俱乐部",
+                action: "新增成员",
+                content: "Sarah Johnson 加入了团队",
+                time: "2天前",
               },
               {
-                team: "Physics Study Group",
-                action: "Question updated",
-                content: "How does gravity affect objects of different masses?",
-                time: "3 days ago",
+                team: "物理学习小组",
+                action: "问题已更新",
+                content: "重力如何影响不同质量的物体？",
+                time: "3天前",
               },
               {
-                team: "Math Competition Team",
-                action: "Announcement",
-                content: "Meeting scheduled for Friday at 4 PM",
-                time: "4 days ago",
+                team: "数学竞赛团队",
+                action: "公告",
+                content: "周五下午4点召开会议",
+                time: "4天前",
               },
             ].map((activity, i) => (
               <div key={i} className="border-b pb-3 last:border-0 last:pb-0">

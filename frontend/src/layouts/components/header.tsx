@@ -9,10 +9,15 @@ const Header = () => {
     <div>
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center px-4">
-          <Link to="/" className="flex items-center gap-8">
-            {/* 将edupal替换为图片 */}
-            <img src="/logo.png" alt="edupal logo" className="h-14" />
-          </Link>
+          {isLoggedIn ? (
+            <Link to="/" className="flex items-center gap-8">
+              <img src="/logo.png" alt="edupal logo" className="h-14" />
+            </Link>
+          ) : (
+            <Link to="/dashboard" className="flex items-center gap-8">
+              <img src="/logo.png" alt="edupal logo" className="h-14" />
+            </Link>
+          )}
 
           {isLoggedIn ? (
             <>
@@ -21,19 +26,13 @@ const Header = () => {
                   to="/dashboard"
                   className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors hover:underline underline-offset-4"
                 >
-                  快速入口
+                  我的
                 </Link>
                 <Link
-                  to="/question-bank"
+                  to="/question/bank"
                   className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors hover:underline underline-offset-4"
                 >
                   题库
-                </Link>
-                <Link
-                  to="/about"
-                  className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors hover:underline underline-offset-4"
-                >
-                  关于
                 </Link>
               </nav>
               <div className="ml-4 flex items-center gap-2">

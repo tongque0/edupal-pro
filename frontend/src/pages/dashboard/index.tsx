@@ -15,7 +15,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mb-8">
           <div className="flex-1"></div>
           <div className="flex items-center gap-2">
-            <Link to="/generate">
+            <Link to="/question/new">
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
                 New Question
