@@ -1,16 +1,18 @@
 //File path: src/router/index.ts
 import { lazy } from "react";
 
-const Home = lazy(() => import("@/pages/home")); // 使用懒加载
-const Auth = lazy(() => import("@/pages/auth")); // 使用懒加载
 const routers = [
   {
     path: "/",
-    component: Home,
+    component: lazy(() => import("@/pages/home")),
   },
   {
     path: "/auth",
-    component: Auth,
+    component: lazy(() => import("@/pages/auth")),
+  },
+  {
+    path: "/dashboard",
+    component: lazy(() => import("@/pages/dashboard")), // 使用懒加载
   }
 ];
 

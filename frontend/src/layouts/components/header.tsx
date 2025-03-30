@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Settings, User } from "lucide-react";
 
 const Header = () => {
   const isLoggedIn = true; // Replace with actual authentication logic
@@ -35,6 +36,16 @@ const Header = () => {
                   关于
                 </Link>
               </nav>
+              <div className="ml-4 flex items-center gap-2">
+                <Button variant="ghost" size="icon">
+                  <Settings className="h-5 w-5" />
+                  <span className="sr-only">Settings</span>
+                </Button>
+                <Button variant="ghost" size="icon">
+                  <User className="h-5 w-5" />
+                  <span className="sr-only">Account</span>
+                </Button>
+              </div>
             </>
           ) : (
             <div className="ml-auto flex items-center gap-2">
@@ -44,7 +55,9 @@ const Header = () => {
                 </Button>
               </Link>
               <Link to="/signup">
-                <Button size="sm" className="font-semibold">注册</Button>
+                <Button size="sm" className="font-semibold">
+                  注册
+                </Button>
               </Link>
             </div>
           )}
