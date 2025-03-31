@@ -1,9 +1,32 @@
+# 第一步：构建阶段
+FROM node:18-alpine AS builder
+
+# 设置工作目录
+WORKDIR /app
+
+# 启用 pnpm 并设置淘宝镜像源
+RUN corepack enable && \
+    corepack prepare pnpm@latest --activate && \
+    pnpm config set registry https://registry.npmmirror.com
+RUN npm install -g cnpm --registry=https://registry.npmmirror.com
+# 拷贝依赖文件并安装依赖
+COPY . .
+RUN cnpm install
+
+# 第二步：部署阶段
 FROM nginx:alpine
 
-# 将dist目录下的文件复制到nginx的html目录下
-COPY dist/ /usr/share/nginx/html/
+# 删除默认 nginx 静态资源
+RUN rm -rf /usr/share/nginx/html/*
 
+# 复制构建好的文件到 nginx 目录
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# 拷贝 nginx 配置（可选）
+# COPY nginx.conf /etc/nginx/nginx.conf
+
+# 暴露端口
 EXPOSE 80
 
-# 启动nginx
+# 启动 nginx
 CMD ["nginx", "-g", "daemon off;"]
