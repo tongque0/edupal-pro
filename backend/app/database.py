@@ -1,11 +1,12 @@
+import os
 from sqlmodel import SQLModel, create_engine, Session
 from sqlalchemy.orm import sessionmaker
 from app import models  # 这里导入你的模型
 from app.models import User  # 假设 User 是你在模型中定义的用户模型
 from sqlalchemy.orm import Session as SQLAlchemySession
 from passlib.context import CryptContext
-SQLALCHEMY_DATABASE_URL = "mysql+pymysql://edupal:edupal@edupal_mysql_dev:3306/edupal"
 
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "mysql+pymysql://edupal:edupal@edupal_mysql_dev:3306/edupal")
 # 创建 SQLAlchemy 引擎
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

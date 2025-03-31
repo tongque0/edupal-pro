@@ -1,3 +1,4 @@
+import os
 import pika
 import json
 from contextlib import contextmanager
@@ -9,16 +10,16 @@ RABBITMQ_USER = 'user'
 RABBITMQ_PASSWORD = 'password'
 DEFAULT_QUEUE = 'question_queue'
 
+from pika import URLParameters
 
 @contextmanager
 def rabbitmq_channel(queue_name=DEFAULT_QUEUE):
     """上下文管理 RabbitMQ channel"""
-    connection = pika.BlockingConnection(pika.ConnectionParameters(
-        host=RABBITMQ_HOST,
-        port=RABBITMQ_PORT,
-        virtual_host='/',
-        credentials=pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
-    ))
+    # 构造连接字符串
+    connection_url= os.getenv("RABBITMQ_URL", f"amqp://{RABBITMQ_USER}:{RABBITMQ_PASSWORD}@{RABBITMQ_HOST}:{RABBITMQ_PORT}/")
+
+    # 使用 URLParameters 代替 ConnectionParameters
+    connection = pika.BlockingConnection(URLParameters(connection_url))
 
     channel = connection.channel()
     try:

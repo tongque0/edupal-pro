@@ -18,7 +18,8 @@ type Consumer struct {
 
 func StartConsumers(consumers []Consumer) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-
+	// conn_url := os.Getenv("RABBITMQ_URL")
+	// conn, err := amqp.Dial(conn_url)
 	conn, err := amqp.Dial("amqp://user:password@127.0.0.1:5672/")
 	if err != nil {
 		log.Fatalf("无法连接 RabbitMQ: %s", err)

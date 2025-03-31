@@ -12,6 +12,8 @@ RUN npm install -g cnpm --registry=https://registry.npmmirror.com
 # 拷贝依赖文件并安装依赖
 COPY . .
 RUN cnpm install
+# 构建项目
+RUN pnpm run build
 
 # 第二步：部署阶段
 FROM nginx:alpine

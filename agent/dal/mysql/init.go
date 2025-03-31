@@ -15,7 +15,7 @@ var (
 )
 
 func Init() {
-	DB, err = gorm.Open(mysql.Open("edupal:edupal@tcp(127.0.0.1:3306)/edupal?charset=utf8mb4&parseTime=True&loc=Local"),
+	DB, err = gorm.Open(mysql.Open("edupal:edupal@tcp(edupal_mysql_dev:3306)/edupal?charset=utf8mb4&parseTime=True&loc=Local"),
 		&gorm.Config{
 			PrepareStmt:            true,
 			SkipDefaultTransaction: true,
