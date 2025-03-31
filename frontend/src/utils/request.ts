@@ -1,10 +1,14 @@
 // utils/request.js
 import axios from "axios";
+import proxy from '@/configs/host';
 
+const env = (import.meta.env.MODE || 'development') as keyof typeof proxy;
+const API_HOST = proxy[env].API;
+const TIMEOUT = 5000;
 // 创建 axios 实例
 const request = axios.create({
-  baseURL: "/api", // 你可以根据需求修改 baseURL
-  timeout: 10000, // 设置请求超时时间
+  baseURL: API_HOST , // 你可以根据需求修改 baseURL
+  timeout: TIMEOUT, // 设置请求超时时间
   withCredentials: true,
 });
 
