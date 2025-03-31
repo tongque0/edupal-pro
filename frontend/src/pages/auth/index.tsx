@@ -1,4 +1,3 @@
-import { GalleryVerticalEnd } from "lucide-react";
 import { LoginForm } from "@/pages/auth/components/login-form";
 import { RegisterForm } from "@/pages/auth/components/register-form"; // 引入 RegisterForm 组件
 import { switchLayout } from "@/modules/global";
@@ -37,7 +36,7 @@ export default function AuthPage() {
             {isLoginPage ? (
               <LoginForm /> // 渲染登录表单
             ) : (
-              <RegisterForm /> // 渲染注册表单
+              <RegisterForm toggleForm={toggleForm} /> // 渲染注册表单
             )}
           </div>
         </div>

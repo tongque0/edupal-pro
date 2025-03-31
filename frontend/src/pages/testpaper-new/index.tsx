@@ -1,14 +1,26 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import {Link} from "react-router-dom"
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState } from "react";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -17,11 +29,22 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Brain, FileText, Search, Plus, GripVertical, X, Eye, Save, Download, Clock, AlertCircle } from "lucide-react"
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  FileText,
+  Search,
+  Plus,
+  GripVertical,
+  X,
+  Eye,
+  Save,
+  Download,
+  Clock,
+  AlertCircle,
+} from "lucide-react";
 
 export default function CreateTestPage() {
   // State for test paper metadata
@@ -31,18 +54,18 @@ export default function CreateTestPage() {
     instructions: "",
     subject: "",
     timeLimit: 60, // in minutes
-  })
+  });
 
   // State for selected questions
-  const [selectedQuestions, setSelectedQuestions] = useState([])
+  const [selectedQuestions, setSelectedQuestions] = useState([]);
 
   // State for search and filters
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
     subject: "all",
     difficulty: "all",
     type: "all",
-  })
+  });
 
   // Sample questions for the question bank
   const questionBank = [
@@ -76,7 +99,12 @@ export default function CreateTestPage() {
       id: "q4",
       question: "Who wrote 'Romeo and Juliet'?",
       type: "Multiple Choice",
-      options: ["William Shakespeare", "Charles Dickens", "Jane Austen", "Mark Twain"],
+      options: [
+        "William Shakespeare",
+        "Charles Dickens",
+        "Jane Austen",
+        "Mark Twain",
+      ],
       answer: "William Shakespeare",
       difficulty: "Easy",
       subject: "Literature",
@@ -109,7 +137,8 @@ export default function CreateTestPage() {
       id: "q8",
       question: "Name the seven continents of the world.",
       type: "Short Answer",
-      answer: "Asia, Africa, North America, South America, Antarctica, Europe, and Australia",
+      answer:
+        "Asia, Africa, North America, South America, Antarctica, Europe, and Australia",
       difficulty: "Medium",
       subject: "Geography",
     },
@@ -117,7 +146,8 @@ export default function CreateTestPage() {
       id: "q9",
       question: "What is the main theme of 'To Kill a Mockingbird'?",
       type: "Essay",
-      answer: "The main themes include racial injustice, moral growth, and the coexistence of good and evil.",
+      answer:
+        "The main themes include racial injustice, moral growth, and the coexistence of good and evil.",
       difficulty: "Hard",
       subject: "Literature",
     },
@@ -130,79 +160,84 @@ export default function CreateTestPage() {
       difficulty: "Hard",
       subject: "Science",
     },
-  ]
+  ];
 
   // Filter questions based on search query and filters
   const filteredQuestions = questionBank.filter((q) => {
     // Filter by search query
-    const matchesSearch = searchQuery === "" || q.question.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesSearch =
+      searchQuery === "" ||
+      q.question.toLowerCase().includes(searchQuery.toLowerCase());
 
     // Filter by subject
-    const matchesSubject = filters.subject === "all" || q.subject.toLowerCase() === filters.subject.toLowerCase()
+    const matchesSubject =
+      filters.subject === "all" ||
+      q.subject.toLowerCase() === filters.subject.toLowerCase();
 
     // Filter by difficulty
     const matchesDifficulty =
-      filters.difficulty === "all" || q.difficulty.toLowerCase() === filters.difficulty.toLowerCase()
+      filters.difficulty === "all" ||
+      q.difficulty.toLowerCase() === filters.difficulty.toLowerCase();
 
     // Filter by type
-    const matchesType = filters.type === "all" || q.type.toLowerCase() === filters.type.toLowerCase()
+    const matchesType =
+      filters.type === "all" ||
+      q.type.toLowerCase() === filters.type.toLowerCase();
 
-    return matchesSearch && matchesSubject && matchesDifficulty && matchesType
-  })
+    return matchesSearch && matchesSubject && matchesDifficulty && matchesType;
+  });
 
   // Add question to test paper
   const addQuestion = (question) => {
     if (!selectedQuestions.some((q) => q.id === question.id)) {
-      setSelectedQuestions([...selectedQuestions, question])
+      setSelectedQuestions([...selectedQuestions, question]);
     }
-  }
+  };
 
   // Remove question from test paper
   const removeQuestion = (questionId) => {
-    setSelectedQuestions(selectedQuestions.filter((q) => q.id !== questionId))
-  }
+    setSelectedQuestions(selectedQuestions.filter((q) => q.id !== questionId));
+  };
 
   // Handle drag and drop reordering
   const handleDragEnd = (result) => {
-    if (!result.destination) return
+    if (!result.destination) return;
 
-    const items = Array.from(selectedQuestions)
-    const [reorderedItem] = items.splice(result.source.index, 1)
-    items.splice(result.destination.index, 0, reorderedItem)
+    const items = Array.from(selectedQuestions);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
 
-    setSelectedQuestions(items)
-  }
+    setSelectedQuestions(items);
+  };
 
   // Calculate estimated time
   const calculateEstimatedTime = () => {
-    let totalMinutes = 0
+    let totalMinutes = 0;
 
     selectedQuestions.forEach((q) => {
       if (q.type === "Multiple Choice" || q.type === "True/False") {
-        totalMinutes += 1
+        totalMinutes += 1;
       } else if (q.type === "Short Answer") {
-        totalMinutes += 3
+        totalMinutes += 3;
       } else if (q.type === "Essay") {
-        totalMinutes += 10
+        totalMinutes += 10;
       }
-    })
+    });
 
-    return totalMinutes
-  }
+    return totalMinutes;
+  };
 
   // Handle input changes for test paper metadata
   const handleInputChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setTestPaper({
       ...testPaper,
       [name]: value,
-    })
-  }
+    });
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
-
-
       <main className="flex-1 container mx-auto py-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold tracking-tight">New TestPaper</h1>
@@ -220,8 +255,12 @@ export default function CreateTestPage() {
               </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
                 <DialogHeader>
-                  <DialogTitle>{testPaper.title || "Untitled Test Paper"}</DialogTitle>
-                  <DialogDescription>{testPaper.description || "No description provided."}</DialogDescription>
+                  <DialogTitle>
+                    {testPaper.title || "Untitled Test Paper"}
+                  </DialogTitle>
+                  <DialogDescription>
+                    {testPaper.description || "No description provided."}
+                  </DialogDescription>
                 </DialogHeader>
                 <div className="py-4 space-y-6">
                   {testPaper.instructions && (
@@ -249,7 +288,10 @@ export default function CreateTestPage() {
                         {q.type === "Multiple Choice" && (
                           <div className="space-y-2 ml-6">
                             {q.options.map((option, j) => (
-                              <div key={j} className="flex items-center space-x-2">
+                              <div
+                                key={j}
+                                className="flex items-center space-x-2"
+                              >
                                 <div className="h-4 w-4 rounded-full border border-muted-foreground" />
                                 <span>{option}</span>
                               </div>
@@ -273,7 +315,9 @@ export default function CreateTestPage() {
                         {q.type === "Short Answer" && (
                           <div className="ml-6 mt-2">
                             <div className="border border-dashed border-muted-foreground p-2 rounded-md">
-                              <p className="text-muted-foreground text-sm">Answer space</p>
+                              <p className="text-muted-foreground text-sm">
+                                Answer space
+                              </p>
                             </div>
                           </div>
                         )}
@@ -281,7 +325,9 @@ export default function CreateTestPage() {
                         {q.type === "Essay" && (
                           <div className="ml-6 mt-2">
                             <div className="border border-dashed border-muted-foreground p-4 rounded-md min-h-[100px]">
-                              <p className="text-muted-foreground text-sm">Essay response area</p>
+                              <p className="text-muted-foreground text-sm">
+                                Essay response area
+                              </p>
                             </div>
                           </div>
                         )}
@@ -307,7 +353,9 @@ export default function CreateTestPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Test Paper Details</CardTitle>
-                <CardDescription>Enter the basic information for your test paper</CardDescription>
+                <CardDescription>
+                  Enter the basic information for your test paper
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -350,7 +398,9 @@ export default function CreateTestPage() {
                     <Label htmlFor="subject">Subject</Label>
                     <Select
                       value={testPaper.subject}
-                      onValueChange={(value) => setTestPaper({ ...testPaper, subject: value })}
+                      onValueChange={(value) =>
+                        setTestPaper({ ...testPaper, subject: value })
+                      }
                     >
                       <SelectTrigger id="subject">
                         <SelectValue placeholder="Select subject" />
@@ -383,7 +433,9 @@ export default function CreateTestPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Question Bank</CardTitle>
-                <CardDescription>Search and filter questions to add to your test paper</CardDescription>
+                <CardDescription>
+                  Search and filter questions to add to your test paper
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="relative">
@@ -402,7 +454,9 @@ export default function CreateTestPage() {
                     <Label htmlFor="filter-subject">Subject</Label>
                     <Select
                       value={filters.subject}
-                      onValueChange={(value) => setFilters({ ...filters, subject: value })}
+                      onValueChange={(value) =>
+                        setFilters({ ...filters, subject: value })
+                      }
                     >
                       <SelectTrigger id="filter-subject">
                         <SelectValue placeholder="Subject" />
@@ -422,7 +476,9 @@ export default function CreateTestPage() {
                     <Label htmlFor="filter-difficulty">Difficulty</Label>
                     <Select
                       value={filters.difficulty}
-                      onValueChange={(value) => setFilters({ ...filters, difficulty: value })}
+                      onValueChange={(value) =>
+                        setFilters({ ...filters, difficulty: value })
+                      }
                     >
                       <SelectTrigger id="filter-difficulty">
                         <SelectValue placeholder="Difficulty" />
@@ -438,15 +494,24 @@ export default function CreateTestPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="filter-type">Question Type</Label>
-                    <Select value={filters.type} onValueChange={(value) => setFilters({ ...filters, type: value })}>
+                    <Select
+                      value={filters.type}
+                      onValueChange={(value) =>
+                        setFilters({ ...filters, type: value })
+                      }
+                    >
                       <SelectTrigger id="filter-type">
                         <SelectValue placeholder="Type" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Types</SelectItem>
-                        <SelectItem value="multiple choice">Multiple Choice</SelectItem>
+                        <SelectItem value="multiple choice">
+                          Multiple Choice
+                        </SelectItem>
                         <SelectItem value="true/false">True/False</SelectItem>
-                        <SelectItem value="short answer">Short Answer</SelectItem>
+                        <SelectItem value="short answer">
+                          Short Answer
+                        </SelectItem>
                         <SelectItem value="essay">Essay</SelectItem>
                       </SelectContent>
                     </Select>
@@ -459,7 +524,9 @@ export default function CreateTestPage() {
                       <Card key={question.id} className="border border-muted">
                         <CardHeader className="p-4 pb-2">
                           <div className="flex items-start justify-between">
-                            <CardTitle className="text-base">{question.question}</CardTitle>
+                            <CardTitle className="text-base">
+                              {question.question}
+                            </CardTitle>
                           </div>
                         </CardHeader>
                         <CardContent className="p-4 pt-0 pb-2">
@@ -497,9 +564,13 @@ export default function CreateTestPage() {
                             size="sm"
                             className="ml-auto"
                             onClick={() => addQuestion(question)}
-                            disabled={selectedQuestions.some((q) => q.id === question.id)}
+                            disabled={selectedQuestions.some(
+                              (q) => q.id === question.id
+                            )}
                           >
-                            {selectedQuestions.some((q) => q.id === question.id) ? (
+                            {selectedQuestions.some(
+                              (q) => q.id === question.id
+                            ) ? (
                               "Added"
                             ) : (
                               <>
@@ -515,7 +586,9 @@ export default function CreateTestPage() {
                     {filteredQuestions.length === 0 && (
                       <div className="flex flex-col items-center justify-center py-8 text-center">
                         <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
-                        <p className="text-muted-foreground">No questions match your search criteria</p>
+                        <p className="text-muted-foreground">
+                          No questions match your search criteria
+                        </p>
                       </div>
                     )}
                   </div>
@@ -531,11 +604,15 @@ export default function CreateTestPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>Test Paper Preview</CardTitle>
-                    <CardDescription>{selectedQuestions.length} questions selected</CardDescription>
+                    <CardDescription>
+                      {selectedQuestions.length} questions selected
+                    </CardDescription>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Clock className="h-4 w-4" />
-                    <span>Estimated time: {calculateEstimatedTime()} minutes</span>
+                    <span>
+                      Estimated time: {calculateEstimatedTime()} minutes
+                    </span>
                   </div>
                 </div>
               </CardHeader>
@@ -544,16 +621,25 @@ export default function CreateTestPage() {
                   <div className="flex flex-col items-center justify-center py-8 text-center border-2 border-dashed border-muted-foreground/20 rounded-md">
                     <FileText className="h-12 w-12 text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">
-                      Add questions from the question bank to build your test paper
+                      Add questions from the question bank to build your test
+                      paper
                     </p>
                   </div>
                 ) : (
                   <DragDropContext onDragEnd={handleDragEnd}>
                     <Droppable droppableId="questions">
                       {(provided) => (
-                        <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+                        <div
+                          {...provided.droppableProps}
+                          ref={provided.innerRef}
+                          className="space-y-4"
+                        >
                           {selectedQuestions.map((question, index) => (
-                            <Draggable key={question.id} draggableId={question.id} index={index}>
+                            <Draggable
+                              key={question.id}
+                              draggableId={question.id}
+                              index={index}
+                            >
                               {(provided) => (
                                 <div
                                   ref={provided.innerRef}
@@ -561,7 +647,10 @@ export default function CreateTestPage() {
                                   className="border rounded-md p-4 bg-background"
                                 >
                                   <div className="flex items-start gap-2">
-                                    <div {...provided.dragHandleProps} className="mt-1 cursor-grab">
+                                    <div
+                                      {...provided.dragHandleProps}
+                                      className="mt-1 cursor-grab"
+                                    >
                                       <GripVertical className="h-5 w-5 text-muted-foreground" />
                                     </div>
                                     <div className="flex-1">
@@ -573,17 +662,27 @@ export default function CreateTestPage() {
                                           variant="ghost"
                                           size="icon"
                                           className="h-6 w-6 rounded-full"
-                                          onClick={() => removeQuestion(question.id)}
+                                          onClick={() =>
+                                            removeQuestion(question.id)
+                                          }
                                         >
                                           <X className="h-4 w-4" />
-                                          <span className="sr-only">Remove</span>
+                                          <span className="sr-only">
+                                            Remove
+                                          </span>
                                         </Button>
                                       </div>
                                       <div className="flex flex-wrap gap-2 mb-1">
-                                        <Badge variant="outline" className="text-xs">
+                                        <Badge
+                                          variant="outline"
+                                          className="text-xs"
+                                        >
                                           {question.type}
                                         </Badge>
-                                        <Badge variant="outline" className="text-xs">
+                                        <Badge
+                                          variant="outline"
+                                          className="text-xs"
+                                        >
                                           {question.difficulty}
                                         </Badge>
                                       </div>
@@ -601,7 +700,9 @@ export default function CreateTestPage() {
                 )}
               </CardContent>
               <CardFooter className="flex justify-between">
-                <div className="text-sm text-muted-foreground">Drag and drop to reorder questions</div>
+                <div className="text-sm text-muted-foreground">
+                  Drag and drop to reorder questions
+                </div>
                 <Button
                   variant="outline"
                   size="sm"
@@ -620,12 +721,16 @@ export default function CreateTestPage() {
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-2">
                   <Checkbox id="shuffle" />
-                  <Label htmlFor="shuffle">Shuffle question order for students</Label>
+                  <Label htmlFor="shuffle">
+                    Shuffle question order for students
+                  </Label>
                 </div>
 
                 <div className="flex items-center space-x-2">
                   <Checkbox id="show-answers" />
-                  <Label htmlFor="show-answers">Show answers after submission</Label>
+                  <Label htmlFor="show-answers">
+                    Show answers after submission
+                  </Label>
                 </div>
 
                 <div className="flex items-center space-x-2">
@@ -653,7 +758,9 @@ export default function CreateTestPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All students</SelectItem>
-                      <SelectItem value="specific">Specific students/groups</SelectItem>
+                      <SelectItem value="specific">
+                        Specific students/groups
+                      </SelectItem>
                       <SelectItem value="private">Only me (private)</SelectItem>
                     </SelectContent>
                   </Select>
@@ -667,7 +774,9 @@ export default function CreateTestPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="always">Always available</SelectItem>
-                      <SelectItem value="scheduled">Scheduled availability</SelectItem>
+                      <SelectItem value="scheduled">
+                        Scheduled availability
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -677,6 +786,5 @@ export default function CreateTestPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }
-

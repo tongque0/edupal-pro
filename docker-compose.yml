@@ -1,23 +1,81 @@
 services:
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: ./deploy/dev/dockerfile.frontend # 路径小错，改为 deploy
-  #   container_name: edupal_frontend_dev
-  #   working_dir: /app
-  #   command: ["pnpm", "dev"] # 如果你已经改用 pnpm
-  #   volumes:
-  #     - ./frontend:/app
-  #     - /app/node_modules # 防止主机和容器的 node_modules 冲突
-  #   ports:
-  #     - "5173:5173"
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../deploy/dev/dockerfile.frontend
+    container_name: edupal_frontend_dev
+    working_dir: /app
+    command: ["pnpm", "dev"]
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # 防止主机和容器的 node_modules 冲突
+    ports:
+      - "5173:5173" # 将容器的 5173 端口映射到宿主机的 5173 端口
+    restart: always  # 设置容器总是重启
 
   backend:
     build:
       context: backend
-      dockerfile: ../deploy/prod/dockerfile.backend
+      dockerfile: ../deploy/dev/dockerfile.backend
     container_name: edupal_backend_dev
+    command:
+      [
+        "/app/.venv/bin/uvicorn",
+        "app.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+        "--reload",
+      ]
+    environment:
+      - SECRET_KEY=edupal-secret
+      - EXPIRE_DAYS=7
     ports:
-      - "8000:80"
+      - "8000:8000"
     volumes:
       - ./backend/app:/app/app
+    depends_on:
+      - mysql  # 确保 backend 在 mysql 服务之后启动
+      - rabbitmq  # 确保 backend 在 rabbitmq 服务之后启动
+      # - agent
+    restart: on-failure  # 后端容器发生错误时重启
+  agent:
+    build:
+      context: agent
+      dockerfile: ../deploy/dev/dockerfile.agent
+    container_name: edupal_agent_dev
+    command: ["go","run","main.go"]
+    working_dir: /app
+    volumes:
+      - ./agent/:/app
+    depends_on:
+      - rabbitmq  # 确保 agent 在 backend 服务之后启动
+      - mysql
+  mysql:
+    image: mysql:8.0  # 使用 MySQL 官方镜像
+    container_name: edupal_mysql_dev
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password  # root 密码
+      MYSQL_USER: edupal  # 数据库用户
+      MYSQL_PASSWORD: edupal  # 数据库密码
+      MYSQL_DATABASE: edupal  # 默认数据库名称
+    volumes:
+      - mysql_data:/var/lib/mysql  # 保持数据持久性
+    ports:
+      - "3306:3306"  # 将容器的 3306 端口映射到宿主机的 3306 端口
+    restart: always  # MySQL 服务总是重启
+
+  rabbitmq:
+    image: "rabbitmq:management"  # 使用带管理界面的 RabbitMQ 镜像
+    container_name: edupal_rabbitmq_dev
+    environment:
+      RABBITMQ_DEFAULT_USER: user  # 默认用户名
+      RABBITMQ_DEFAULT_PASS: password  # 默认密码
+    ports:
+      - "15672:15672"  # RabbitMQ 管理界面
+      - "5672:5672"    # RabbitMQ 消息队列端口
+    restart: always  # RabbitMQ 服务总是重启
+
+volumes:
+  mysql_data:  # 定义 MySQL 数据存储卷

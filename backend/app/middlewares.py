@@ -11,21 +11,18 @@ from jwt.exceptions import InvalidTokenError
 def register_middlewares(app: FastAPI):
     # 注册 JWT 中间件
     print("register_middlewares")
-    CorsMiddleware(app)
-    app.add_middleware(AuthMiddleware)
-
-def CorsMiddleware(app: FastAPI):
     origins = [
-        "*",
+        "*",  # 允许所有来源
     ]
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=origins,  # 允许的跨域来源
-        allow_credentials=True,
-        allow_methods=["*"],  # 允许的 HTTP 方法
-        allow_headers=["*"],  # 允许的请求头
+        allow_origins=origins,  # 只允许来自指定的来源
+        allow_credentials=True,  # 允许凭证
+        allow_methods=["*"],     # 允许所有 HTTP 方法
+        allow_headers=["*"],     # 允许所有请求头
     )
-
+    app.add_middleware(AuthMiddleware)
 
 class AuthMiddleware(BaseHTTPMiddleware):
     def __init__(self, app: FastAPI):

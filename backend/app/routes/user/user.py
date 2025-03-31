@@ -1,4 +1,4 @@
-from app.routes.user.user_schemas import UserResponse,UserCreate
+from app.routes.user.user_schemas import UserResponse,UserAuth
 from fastapi import APIRouter, Depends, HTTPException, status,Request
 from sqlalchemy.orm import Session
 from app.models import User
@@ -21,7 +21,7 @@ def verify_password(plain_password: str, hashed_password: str):
     return pwd_context.verify(plain_password, hashed_password)
 
 @router.post("/signup", response_model=UserResponse,summary="用户注册")
-def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
+def create_new_user(user: UserAuth, db: Session = Depends(get_db)):
     """
     用户注册
     """
@@ -38,15 +38,20 @@ def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
     return db_user
 
 
-@router.post("/signin",summary="用户登录")
-def login_for_access_token(username: str, password: str, db: Session = Depends(get_db)):
+@router.post("/signin", summary="用户登录")
+def login_for_access_token(user: UserAuth, db: Session = Depends(get_db)):
     """
     用户登录，返回 JWT token
     """
-    db_user = db.query(User).filter(User.username == username).first()
-    if db_user and verify_password(password, db_user.password):  # 使用加密密码验证
-        token = create_access_token(data={"sub": db_user.username, "role": db_user.role,"id":db_user.id})
+    # 根据用户名或邮箱查询用户
+    db_user = db.query(User).filter(
+        (User.username == user.username)
+    ).first()
+
+    if db_user and verify_password(user.password, db_user.password):  # 使用加密密码验证
+        token = create_access_token(data={"sub": db_user.username, "role": db_user.role, "id": db_user.id})
         return {"access_token": token, "token_type": "bearer"}
+
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Incorrect username or password",

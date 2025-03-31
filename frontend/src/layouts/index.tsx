@@ -2,6 +2,7 @@ import { memo } from "react";
 import { useAppSelector } from "@/modules/stores";
 import { selectGlobal } from "@/modules/global";
 import AppLayout from "@/layouts/components/applayout";
+import { Toaster } from "@/components/ui/sonner"
 export default memo(() => {
   const globalState = useAppSelector(selectGlobal);
 
@@ -11,6 +12,7 @@ export default memo(() => {
   return (
     <div className="w-full max-w mx-auto">
       <AppContainer />
+      <Toaster position="top-center" />
     </div>
   );
 });

@@ -21,13 +21,13 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useSelector, useDispatch } from 'react-redux';
 
-// 导入全局状态的 reducer（假设你有一个 global reducer）
+import authReducer from '@/modules/auth';
 import globalReducer from '@/modules/global';
 
 // 组合多个 reducer，这里只有一个 global reducer
 const reducer = combineReducers({
+  auth:authReducer,
   global: globalReducer,
-  // 其他 reducer 可以在这里添加
 });
 
 // 配置 Redux store

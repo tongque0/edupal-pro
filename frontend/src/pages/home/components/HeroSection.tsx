@@ -26,7 +26,7 @@ export default function HeroSection() {
                   开始使用
                 </Button>
               </Link>
-              <Link to="/question-bank">
+              <Link to="/question/bank">
                 <Button
                   size="lg"
                   variant="outline"

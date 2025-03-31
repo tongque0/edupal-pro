@@ -1,14 +1,48 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import React, { useState } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { register } from "@/api/user";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+interface RegisterFormProps {
+  toggleForm: () => void; // 接收 toggleForm 函数作为 props
+  className?: string; // 可选的 className 属性
+  [key: string]: any; // 其他任意属性
+}
+export function RegisterForm({ toggleForm, className, ...props }: RegisterFormProps) {
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate(); // 使用 useNavigate 进行页面跳转
+  // 提交表单时的处理函数
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-export function RegisterForm({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"form">) {
+    // 调用注册 API
+
+    try {
+      const res = await register({
+        email,
+        username,
+        password,
+      });
+      if (res.username === username) {
+        toast.success("注册成功，请登录！");
+        toggleForm(); // 切换到登录表单
+      }
+    } catch (error) {
+      toast.error("注册失败，请检查您的信息");
+    }
+  };
+
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      className={cn("flex flex-col gap-6", className)}
+      onSubmit={handleSubmit}
+      {...props}
+    >
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">创建您的账户</h1>
         <p className="text-balance text-sm text-muted-foreground">
@@ -18,11 +52,25 @@ export function RegisterForm({
       <div className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="email">邮箱</Label>
-          <Input id="email" type="email" placeholder="m@example.com" required />
+          <Input
+            id="email"
+            type="email"
+            placeholder="m@example.com"
+            required
+            value={email} // 绑定 value 到 state
+            onChange={(e) => setEmail(e.target.value)} // 更新 email state
+          />
         </div>
         <div className="grid gap-2">
           <Label htmlFor="username">用户名</Label>
-          <Input id="username" type="text" placeholder="您的用户名" required />
+          <Input
+            id="username"
+            type="text"
+            placeholder="您的用户名"
+            required
+            value={username} // 绑定 value 到 state
+            onChange={(e) => setUsername(e.target.value)} // 更新 username state
+          />
         </div>
         <div className="grid gap-2">
           <div className="flex items-center">
@@ -34,7 +82,13 @@ export function RegisterForm({
               忘记密码？
             </a>
           </div>
-          <Input id="password" type="password" required />
+          <Input
+            id="password"
+            type="password"
+            required
+            value={password} // 绑定 value 到 state
+            onChange={(e) => setPassword(e.target.value)} // 更新 password state
+          />
         </div>
         <Button type="submit" className="w-full">
           注册
@@ -55,5 +109,5 @@ export function RegisterForm({
         </Button>
       </div>
     </form>
-  )
+  );
 }
