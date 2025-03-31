@@ -44,22 +44,22 @@ services:
       - rabbitmq  # 确保 backend 在 rabbitmq 服务之后启动
       # - agent
     restart: on-failure  # 后端容器发生错误时重启
-  agent:
-    build:
-      context: agent
-      dockerfile: ../deploy/dev/dockerfile.agent
-    container_name: edupal_agent_dev
-    command: ["go","run","main.go"]
-    environment:
-      - DATABASE_URL=mysql+mysqlconnector://edupal:edupal@mysql:3306/edupal
-      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672/  # RabbitMQ 的连接字符串
-      - api_key=your_api_key  # 替换为实际的 API 密钥
-      - base_url=http://localhost:8000  # 替换为实际的基础 URL
-    volumes:
-      - ./agent/:/app
-    depends_on:
-      - rabbitmq  # 确保 agent 在 backend 服务之后启动
-      - mysql
+  # agent:
+  #   build:
+  #     context: agent
+  #     dockerfile: ../deploy/dev/dockerfile.agent
+  #   container_name: edupal_agent_dev
+  #   command: ["go","run","main.go"]
+  #   environment:
+  #     - DATABASE_URL=mysql+mysqlconnector://edupal:edupal@mysql:3306/edupal
+  #     - RABBITMQ_URL=amqp://user:password@rabbitmq:5672/  # RabbitMQ 的连接字符串
+  #     - api_key=your_api_key  # 替换为实际的 API 密钥
+  #     - base_url=http://localhost:8000  # 替换为实际的基础 URL
+  #   volumes:
+  #     - ./agent/:/app
+  #   depends_on:
+  #     - rabbitmq  # 确保 agent 在 backend 服务之后启动
+  #     - mysql
   mysql:
     image: mysql:8.0  # 使用 MySQL 官方镜像
     container_name: edupal_mysql_dev
