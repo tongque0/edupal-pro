@@ -1,77 +1,74 @@
+version: "3.9"
+
 services:
   frontend:
     build:
       context: ./frontend
       dockerfile: ../deploy/prod/dockerfile.frontend
-    container_name: edupal_frontend
     working_dir: /app
     ports:
       - "5174:80"
-    restart: always  # 设置容器总是重启
+    restart: always
 
   backend:
     build:
-      context: backend
+      context: ./backend
       dockerfile: ../deploy/prod/dockerfile.backend
-    container_name: edupal_backend
     command:
       [
         "/app/.venv/bin/uvicorn",
         "app.main:app",
-        "--host",
-        "0.0.0.0",
-        "--port",
-        "8000",
+        "--host", "0.0.0.0",
+        "--port", "8000"
       ]
     environment:
       - SECRET_KEY=edupal
       - EXPIRE_DAYS=7
       - DATABASE_URL=mysql+pymysql://edupal:edupal@edupal_mysql:3306/edupal
-      - RABBITMQ_URL=amqp://user:password@edupal_rabbitmq:5672/  # RabbitMQ 的连接字符串
-      - api_key=your_api_key  # 替换为实际的 API 密钥
-      - base_url=http://localhost:8000  # 替换为实际的基础 URL
+      - RABBITMQ_URL=amqp://user:password@edupal_rabbitmq:5672/
+      - api_key=your_api_key
+      - base_url=http://localhost:8000
     ports:
       - "8000:8000"
     depends_on:
-      - mysql  # 确保 backend 在 mysql 服务之后启动
-      - rabbitmq  # 确保 backend 在 rabbitmq 服务之后启动
-      # - agent
-    restart: on-failure  # 后端容器发生错误时重启
-#   agent:
-#     build:
-#       context: agent
-#       dockerfile: ../deploy/dev/dockerfile.agent
-#     container_name: edupal_agent_dev
-#     command: ["go","run","main.go"]
-#     environment:
-#       - DATABASE_URL=mysql+mysqlconnector://edupal:edupal@mysql:3306/edupal
-#       - RABBITMQ_URL=amqp://user:password@rabbitmq:5672/  # RabbitMQ 的连接字符串
-#     volumes:
-#       - ./agent/:/app
-#     depends_on:
-#       - rabbitmq  # 确保 agent 在 backend 服务之后启动
-#       - mysql
-  mysql:
-    image: mysql:8.0  # 使用 MySQL 官方镜像
-    container_name: edupal_mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password  # root 密码
-      MYSQL_USER: edupal  # 数据库用户
-      MYSQL_PASSWORD: edupal  # 数据库密码
-      MYSQL_DATABASE: edupal  # 默认数据库名称
-    volumes:
-      - mysql_data:/var/lib/mysql  # 保持数据持久性
-    restart: always  # MySQL 服务总是重启
+      - edupal_mysql
+      - edupal_rabbitmq
+    restart: on-failure
 
-  rabbitmq:
-    image: "rabbitmq:management"  # 使用带管理界面的 RabbitMQ 镜像
-    container_name: edupal_rabbitmq
+  # agent:
+  #   build:
+  #     context: ./agent
+  #     dockerfile: ../deploy/prod/dockerfile.agent
+  #   command: ["go", "run", "main.go"]
+  #   environment:
+  #     - DATABASE_URL=mysql+mysqlconnector://edupal:edupal@edupal_mysql:3306/edupal
+  #     - RABBITMQ_URL=amqp://user:password@edupal_rabbitmq:5672/
+  #   volumes:
+  #     - ./agent:/app
+  #   depends_on:
+  #     - edupal_mysql
+  #     - edupal_rabbitmq
+  #   restart: on-failure
+
+  edupal_mysql:
+    image: mysql:8.0
     environment:
-      RABBITMQ_DEFAULT_USER: user  # 默认用户名
-      RABBITMQ_DEFAULT_PASS: password  # 默认密码
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: edupal
+      MYSQL_PASSWORD: edupal
+      MYSQL_DATABASE: edupal
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: always
+
+  edupal_rabbitmq:
+    image: rabbitmq:management
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
     ports:
       - "15672:15672"
-    restart: always  # RabbitMQ 服务总是重启
+    restart: always
 
 volumes:
-  mysql_data:  # 定义 MySQL 数据存储卷
+  mysql_data:
