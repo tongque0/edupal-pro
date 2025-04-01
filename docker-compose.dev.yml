@@ -51,7 +51,7 @@ services:
   #   container_name: edupal_agent_dev
   #   command: ["go","run","main.go"]
   #   environment:
-  #     - DATABASE_URL=mysql+mysqlconnector://edupal:edupal@mysql:3306/edupal
+  #     - DATABASE_URL=mysql+pymysql://edupal:edupal@edupal_mysql_dev:3306/edupal
   #     - RABBITMQ_URL=amqp://user:password@rabbitmq:5672/  # RabbitMQ 的连接字符串
   #     - api_key=your_api_key  # 替换为实际的 API 密钥
   #     - base_url=http://localhost:8000  # 替换为实际的基础 URL
