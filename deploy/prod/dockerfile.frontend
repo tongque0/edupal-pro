@@ -1,5 +1,5 @@
 # 第一步：构建阶段
-FROM node:18-alpine AS builder
+FROM node:latest AS builder
 
 # 设置工作目录
 WORKDIR /app
@@ -17,9 +17,6 @@ RUN pnpm run build
 
 # 第二步：部署阶段
 FROM nginx:alpine
-
-# 删除默认 nginx 静态资源
-RUN rm -rf /usr/share/nginx/html/*
 
 # 复制构建好的文件到 nginx 目录
 COPY --from=builder /app/dist /usr/share/nginx/html

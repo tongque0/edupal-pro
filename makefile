@@ -6,7 +6,7 @@ dev:
 
 # 启动生产环境，先执行 clean
 prod: clean
-	docker-compose -f docker-compose.prod.yml up --build
+	docker-compose -f docker-compose.yml up --build
 
 # 停止开发环境
 down:
