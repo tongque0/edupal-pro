@@ -16,6 +16,8 @@ down:
 clean:
 	docker-compose -f docker-compose.dev.yml down -v --remove-orphans
 	docker-compose -f docker-compose.dev.yml down --rmi all
+	docker-compose -f docker-compose.yml down -v --remove-orphans
+	docker-compose -f docker-compose.yml down --rmi all
 
 # 前端
 # 执行 pnpm dlx shadcn@canary add 命令
