@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import FilterCard from "@/pages/question-bank/components/FilterCard";
-import SearchAndSortBar from "@/pages/question-bank/components/SearchAndSortBar";
 import QuestionCard from "@/pages/question-bank/components/QuestionCard";
 import TestPaperCard from "@/pages/question-bank/components/TestPaperCard";
+import QuestionTable from "@/pages/question-bank/components/QuestionsTable";
 import { getQuestions } from "@/api/question";
+
 
 
 export default function QuestionBankPage() {
@@ -127,9 +128,7 @@ export default function QuestionBankPage() {
               </TabsList>
 
               <TabsContent value="questions" className="space-y-4">
-                {questionList.map((item, i) => (
-                  <QuestionCard key={i} item={item} index={i} />
-                ))}
+                <QuestionTable/>
               </TabsContent>
 
               <TabsContent value="test-papers" className="space-y-4">

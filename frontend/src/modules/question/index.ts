@@ -7,9 +7,9 @@ export interface QuestionFilters {
   type: string;
   creator: string;
   search: string;
-  orderBy?: string; // 可选的排序字段
-  page?: string; // 可选的分页字段
-  pageSize?: string; // 可选的分页字段
+  orderBy: string; // 可选的排序字段
+  page: string; // 可选的分页字段
+  pageSize: string; // 可选的分页字段
 }
 
 export interface QuestionState {
@@ -24,6 +24,8 @@ const initialState: QuestionState = {
     creator: "all",
     search: "",
     orderBy: "newest", // 默认按创建时间排序
+    page: "1", // 默认第一页
+    pageSize: "10", // 默认每页10条
   },
 };
 

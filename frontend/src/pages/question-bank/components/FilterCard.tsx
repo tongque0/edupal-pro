@@ -16,25 +16,6 @@ import { QuestionFilters, setFilter } from "@/modules/question";
 export default function FilterCard() {
   const dispatch = useAppDispatch();
   const reduxFilters = useAppSelector((state) => state.question.filters);
-  const { search, orderBy } = reduxFilters;
-  const [searchInput, setSearchInput] = useState(search || "");
-
-  useEffect(() => {
-    const debounceTimer = setTimeout(() => {
-      if (searchInput !== search) {
-        dispatch(setFilter({ key: "search", value: searchInput }));
-      }
-    }, 300);
-    return () => clearTimeout(debounceTimer);
-  }, [searchInput, dispatch, search]);
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchInput(e.target.value);
-  };
-
-  const handleSortChange = (value: string) => {
-    dispatch(setFilter({ key: "orderBy", value }));
-  };
 
   const handleFilterChange = (key: keyof QuestionFilters, value: string) => {
     dispatch(setFilter({ key, value }));
@@ -48,7 +29,6 @@ export default function FilterCard() {
     });
     dispatch(setFilter({ key: "search", value: "" }));
     dispatch(setFilter({ key: "orderBy", value: "newest" }));
-    setSearchInput("");
   };
 
   const handleApplyFilters = () => {
@@ -117,20 +97,6 @@ export default function FilterCard() {
         <CardTitle>筛选条件</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* 搜索与排序 */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="搜索题目或试卷..."
-              className="w-full pl-8"
-              value={searchInput}
-              onChange={handleSearchChange}
-            />
-          </div>
-        </div>
-
         {/* 筛选字段网格布局 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {filterConfig.map((field, idx) => (
