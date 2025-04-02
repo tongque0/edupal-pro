@@ -17,4 +17,4 @@ COPY . .
 RUN go build -o main .
 
 # 启动程序
-CMD ["./main"]
+CMD ["/app/main"]

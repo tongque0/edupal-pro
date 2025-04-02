@@ -44,8 +44,6 @@ services:
       - RABBITMQ_URL=amqp://user:password@edupal_rabbitmq:5672/
       - api_key=your_api_key
       - base_url=http://localhost:8000
-    volumes:
-      - ./agent:/app
     depends_on:
       - edupal_mysql
       - edupal_rabbitmq
