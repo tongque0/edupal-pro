@@ -22,6 +22,7 @@ func StartConsumers(consumers []Consumer) {
 	dsn = os.Getenv("RABBITMQ_URL")
 	if dsn == "" {
 		dsn = "amqp://user:password@127.0.0.1:5672/"
+		log.Println("未设置环境变量 DATABASE_URL，使用默认本地连接字符串")
 	}
 	conn, err := amqp.Dial(dsn)
 	if err != nil {
@@ -34,7 +35,7 @@ func StartConsumers(consumers []Consumer) {
 		log.Fatalf("无法打开 channel: %s", err)
 	}
 	defer ch.Close()
-
+	log.Printf("RabbitMQ 连接成功: %s", dsn)
 	for _, c := range consumers {
 		_, err := ch.QueueDeclare(
 			c.QueueName,

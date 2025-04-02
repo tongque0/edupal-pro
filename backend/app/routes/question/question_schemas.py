@@ -1,24 +1,32 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field  # ✅ 正确导入 Field
 from typing import Optional
-
-# 请求体模型：用于生成题目的参数
-class QuestionCreate(BaseModel):
-    subject: str
-    grade: str
-    difficulty: str
-    type: str  # 题型：选择题、填空题、简答题等
-
-# 响应体模型：返回的题目信息
-class QuestionResponse(BaseModel):
+from datetime import datetime
+class QuestionRead(BaseModel):
     id: int
+    user_id: Optional[int]
     subject: str
     grade: str
     difficulty: str
     type: str
     content: str
+    options: Optional[str]
     answer: str
-    options: Optional[str] = None  # 适用于选择题，存储JSON
-    explanation: Optional[str] = None
+    explanation: Optional[str]
+    is_public: bool
+    tag: Optional[str]
+    source_id: Optional[str]
+    created_at: datetime
 
     class Config:
-        orm_mode = True  # 用于SQLAlchemy模型与Pydantic模型的兼容
+        orm_mode = True  # 必须加，支持从 SQLModel 转换
+
+class QuestionFilter(BaseModel):
+    user_id: Optional[int] = None
+    subject: Optional[str] = None
+    grade: Optional[str] = None
+    difficulty: Optional[str] = None
+    type: Optional[str] = None
+    source_id: Optional[str] = None
+
+    page: int = Field(default=-1, description="页码（默认 -1 表示不分页）")
+    page_size: int = Field(default=10, ge=1, le=100, description="每页数量（仅分页时有效）")

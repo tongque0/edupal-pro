@@ -56,6 +56,8 @@ def init_enforcer():
     _enforcer.add_policy("default", "/user/me", "GET")
     _enforcer.add_policy("default", "/user/me", "PUT")
     _enforcer.add_policy("default", "/question/gen", "POST")
+    _enforcer.add_policy("default", "/question/get", "GET")
+    _enforcer.add_policy("default", "/question/trace/*", "GET")
 
     # user 角色权限 (普通用户权限)
     _enforcer.add_policy("user", "/courses/*/enroll", "POST")

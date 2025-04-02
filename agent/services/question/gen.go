@@ -86,8 +86,26 @@ func GenQuestion(q QuestionRequest) error {
 		return fmt.Errorf("数据库插入追踪记录失败: %v", err)
 	}
 
-	// 打印生成的题目信息
-	fmt.Println(newquestion)
+	fmt.Printf(`
+	📘 题目内容 ：%s
+	🧠 学科     ：%s
+	🎓 年级     ：%s
+	📈 难度     ：%s
+	🧾 题型     ：%s
+	🅰️ 选项     ：%s
+	✅ 正确答案 ：%s
+	🆔 来源批次 ：%s
+	`,
+		question.Question,
+		question.Subject,
+		question.Grade,
+		question.Difficulty,
+		question.Type,
+		serializeOptions(question.Options),
+		question.Answer,
+		q.SourceID,
+	)
+
 	return nil
 }
 
