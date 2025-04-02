@@ -2,12 +2,11 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select,func
 from app.rabbitmq import send_question
 from app.models import Question, QuestionTrace
 from app.routes.question.question_schemas import QuestionFilter
 from app.database import get_db
-
 router = APIRouter()
 
 
@@ -72,13 +71,22 @@ def get_questions(filters: QuestionFilter = Depends(), db: Session = Depends(get
     if filters.source_id:
         stmt = stmt.where(Question.source_id == filters.source_id)
 
+    # 获取总数据条数
+    count_stmt = select(func.count()).select_from(stmt.subquery())
+    total_count = db.scalar(count_stmt)
+
     # ✅ 分页逻辑
     if filters.page > 0:
         offset = (filters.page - 1) * filters.page_size
         stmt = stmt.offset(offset).limit(filters.page_size)
 
     result = db.execute(stmt)
-    return result.scalars().all()
+    data = result.scalars().all()
+
+    return {
+        "total_count": total_count,
+        "data": data,
+    }
 
 
 @router.get("/trace/{source_id}", summary="获取指定批次追踪记录")

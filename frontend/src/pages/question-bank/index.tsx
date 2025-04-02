@@ -1,69 +1,12 @@
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import FilterCard from "@/pages/question-bank/components/FilterCard";
-import QuestionCard from "@/pages/question-bank/components/QuestionCard";
 import TestPaperCard from "@/pages/question-bank/components/TestPaperCard";
 import QuestionTable from "@/pages/question-bank/components/QuestionsTable";
-import { getQuestions } from "@/api/question";
-
-
 
 export default function QuestionBankPage() {
-  useEffect(() => {
-    // 这里可以添加获取题库数据的逻辑，例如调用 API
-    const fetchData = async () => {
-      try {
-        const response = await getQuestions({
 
-        });
-        console.log(response); // 打印获取到的数据
-      } catch (error) {
-        console.error("获取题库数据失败:", error);
-      }
-    };
-    fetchData();
-
-  }
-  , []);
-  const questionList = [
-    {
-      question: "法国的首都是哪里？",
-      type: "选择题",
-      subject: "地理",
-      difficulty: "简单",
-      creator: "教师",
-    },
-    {
-      question: "解释光合作用的过程。",
-      type: "作文题",
-      subject: "科学",
-      difficulty: "中等",
-      creator: "教师",
-    },
-    {
-      question: "解方程：2x + 5 = 15",
-      type: "简答题",
-      subject: "数学",
-      difficulty: "简单",
-      creator: "学生",
-    },
-    {
-      question: "《罗密欧与朱丽叶》的作者是谁？",
-      type: "选择题",
-      subject: "文学",
-      difficulty: "简单",
-      creator: "教师",
-    },
-    {
-      question: "地球围绕太阳旋转。",
-      type: "判断题",
-      subject: "科学",
-      difficulty: "简单",
-      creator: "教师",
-    },
-  ];
 
   const paperList = [
     {
@@ -128,7 +71,7 @@ export default function QuestionBankPage() {
               </TabsList>
 
               <TabsContent value="questions" className="space-y-4">
-                <QuestionTable/>
+                <QuestionTable />
               </TabsContent>
 
               <TabsContent value="test-papers" className="space-y-4">

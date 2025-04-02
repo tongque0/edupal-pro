@@ -1,6 +1,3 @@
-import { useState, useEffect } from "react";
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -78,15 +75,6 @@ export default function FilterCard() {
         { label: "我", value: "我" },
         { label: "教师", value: "教师" },
         { label: "学生", value: "学生" },
-      ],
-    },
-    {
-      key: "orderBy",
-      label: "排序方式",
-      options: [
-        { label: "最新发布", value: "newest" },
-        { label: "最受欢迎", value: "poplest" },
-        { label: "最早发布", value: "oldest" },
       ],
     },
   ];

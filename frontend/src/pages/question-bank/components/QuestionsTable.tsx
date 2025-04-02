@@ -38,6 +38,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+import { setFilter } from "@/modules/question";
+import { useAppDispatch, useAppSelector } from "@/modules/stores";
+import { useEffect, useState, useMemo } from "react";
+import { getQuestions } from "@/api/question";
+
 type Question = {
   id: string;
   question: string;
@@ -46,122 +52,41 @@ type Question = {
   difficulty: string;
   creator: string;
 };
-import { setFilter } from "@/modules/question";
-import { useAppDispatch, useAppSelector } from "@/modules/stores";
 
 export default function QuestionTable() {
   const dispatch = useAppDispatch();
   const reduxFilters = useAppSelector((state) => state.question.filters);
   const { search, page, pageSize } = reduxFilters;
-  // 将 Redux 中的 string 类型转换为 number 类型
-  const currentPage = page ? parseInt(page as string, 10) - 1 : 0; // 减 1 是因为 TanStack Table 的页码从 0 开始
-  const currentPageSize = pageSize ? parseInt(pageSize as string, 10) : 10; // 默认每页 10 条
 
-  // 使用useMemo记忆化数据，避免重复创建
-  const data: Question[] = React.useMemo(
-    () => [
-      {
-        id: "1",
-        question: "法国的首都是哪里？",
-        type: "选择题",
-        subject: "地理",
-        difficulty: "简单",
-        creator: "教师",
-      },
-      {
-        id: "2",
-        question: "解释光合作用的过程。",
-        type: "作文题",
-        subject: "科学",
-        difficulty: "中等",
-        creator: "教师",
-      },
-      {
-        id: "3",
-        question: "解方程：2x + 5 = 15",
-        type: "简答题",
-        subject: "数学",
-        difficulty: "简单",
-        creator: "学生",
-      },
-      {
-        id: "4",
-        question: "《罗密欧与朱丽叶》的作者是谁？",
-        type: "选择题",
-        subject: "文学",
-        difficulty: "简单",
-        creator: "教师",
-      },
-      {
-        id: "5",
-        question: "地球围绕太阳旋转。",
-        type: "判断题",
-        subject: "科学",
-        difficulty: "简单",
-        creator: "教师",
-      },
-      // 添加更多数据以便测试分页
-      {
-        id: "6",
-        question: "什么是函数式编程？",
-        type: "简答题",
-        subject: "计算机",
-        difficulty: "中等",
-        creator: "教师",
-      },
-      {
-        id: "7",
-        question: "1+1=?",
-        type: "填空题",
-        subject: "数学",
-        difficulty: "简单",
-        creator: "学生",
-      },
-      {
-        id: "8",
-        question: "太阳系有几个行星？",
-        type: "填空题",
-        subject: "天文",
-        difficulty: "简单",
-        creator: "教师",
-      },
-      {
-        id: "9",
-        question: "解释相对论的基本原理",
-        type: "作文题",
-        subject: "物理",
-        difficulty: "困难",
-        creator: "教师",
-      },
-      {
-        id: "10",
-        question: "JavaScript中的闭包是什么？",
-        type: "简答题",
-        subject: "计算机",
-        difficulty: "中等",
-        creator: "教师",
-      },
-      {
-        id: "11",
-        question: "人类基因组包含多少对碱基对？",
-        type: "填空题",
-        subject: "生物",
-        difficulty: "中等",
-        creator: "教师",
-      },
-      {
-        id: "12",
-        question: "什么是后端渲染和前端渲染？",
-        type: "简答题",
-        subject: "计算机",
-        difficulty: "中等",
-        creator: "教师",
-      },
-    ],
-    []
-  );
+  const currentPage = page ? parseInt(page as string, 10) - 1 : 0;
+  const currentPageSize = pageSize ? parseInt(pageSize as string, 10) : 10;
 
-  const columns: ColumnDef<Question>[] = React.useMemo(
+  const [pageInput, setPageInput] = useState<string>(String(currentPage + 1));
+  const [data, setData] = useState<Question[]>([]);
+  const [totalCount, setTotalCount] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getQuestions({
+          page: currentPage + 1,
+          page_size: currentPageSize,
+        });
+        const mapped = (res.data || []).map((item: any) => ({
+          ...item,
+          question: item.content.trim(),
+          type: item.type || "未知",
+        }));
+        setData(mapped);
+        setTotalCount(res.total_count || 0);
+      } catch (error) {
+        console.error("获取题库数据失败:", error);
+      }
+    };
+    fetchData();
+  }, [currentPage, currentPageSize, search]);
+
+  const columns: ColumnDef<Question>[] = useMemo(
     () => [
       {
         accessorKey: "question",
@@ -173,33 +98,45 @@ export default function QuestionTable() {
             题目 <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         ),
+        cell: ({ getValue }) => (
+          <div className="max-w-[200px] truncate">{getValue() as string}</div>
+        ),
       },
       {
         accessorKey: "type",
         header: "题型",
+        cell: ({ getValue }) => (
+          <div className="max-w-[150px] truncate">{getValue() as string}</div>
+        ),
       },
       {
         accessorKey: "subject",
         header: "科目",
+        cell: ({ getValue }) => (
+          <div className="max-w-[150px] truncate">{getValue() as string}</div>
+        ),
       },
       {
         accessorKey: "difficulty",
         header: "难度",
+        cell: ({ getValue }) => (
+          <div className="max-w-[150px] truncate">{getValue() as string}</div>
+        ),
       },
       {
-        accessorKey: "creator",
-        header: "创建者",
+        accessorKey: "grade",
+        header: "年级",
+        cell: ({ getValue }) => (
+          <div className="max-w-[150px] truncate">{getValue() as string}</div>
+        ),
       },
     ],
     []
   );
 
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   const table = useReactTable({
     data,
@@ -216,7 +153,6 @@ export default function QuestionTable() {
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
-
     onPaginationChange: (updater) => {
       let newPagination;
       if (typeof updater === "function") {
@@ -227,21 +163,15 @@ export default function QuestionTable() {
       } else {
         newPagination = updater;
       }
-
       dispatch(
-        setFilter({
-          key: "page",
-          value: String(newPagination.pageIndex + 1),
-        })
+        setFilter({ key: "page", value: String(newPagination.pageIndex + 1) })
       );
-
       dispatch(
-        setFilter({
-          key: "pageSize",
-          value: String(newPagination.pageSize),
-        })
+        setFilter({ key: "pageSize", value: String(newPagination.pageSize) })
       );
     },
+    manualPagination: true,
+    pageCount: Math.ceil(totalCount / currentPageSize),
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -249,24 +179,48 @@ export default function QuestionTable() {
     getRowId: (row) => row.id,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
+    setPageInput(String(currentPage + 1));
+  }, [currentPage]);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       table.getColumn("question")?.setFilterValue(search);
     }, 300);
-
     return () => clearTimeout(timer);
   }, [search, table]);
 
-  // 每页显示记录数选项
   const pageSizeOptions = [5, 10, 20, 50];
 
-  // 页码选项器组件
   const handlePageSizeChange = React.useCallback(
     (value: string) => {
       table.setPageSize(Number(value));
     },
     [table]
   );
+
+  const handlePageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPageInput(e.target.value);
+  };
+
+  const handlePageJump = () => {
+    const pageNumber = parseInt(pageInput, 10);
+    if (
+      !isNaN(pageNumber) &&
+      pageNumber > 0 &&
+      pageNumber <= table.getPageCount()
+    ) {
+      table.setPageIndex(pageNumber - 1);
+    } else {
+      setPageInput(String(table.getState().pagination.pageIndex + 1));
+    }
+  };
+
+  const handlePageInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handlePageJump();
+    }
+  };
 
   return (
     <div className="w-full">
@@ -279,10 +233,7 @@ export default function QuestionTable() {
           }
           className="max-w-sm"
         />
-        <Button className="ml-2">
-          搜索
-        </Button>
-        {/* 列显示*/}
+        <Button className="ml-2">搜索</Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -294,7 +245,6 @@ export default function QuestionTable() {
               .getAllColumns()
               .filter((column) => column.getCanHide())
               .map((column) => {
-                // 使用key作为列名显示
                 const columnName =
                   {
                     question: "题目",
@@ -303,14 +253,13 @@ export default function QuestionTable() {
                     difficulty: "难度",
                     creator: "创建者",
                   }[column.id] || column.id;
-
                 return (
                   <DropdownMenuCheckboxItem
                     key={column.id}
                     checked={column.getIsVisible()}
-                    onCheckedChange={(value) => {
-                      column.toggleVisibility(!!value);
-                    }}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
                   >
                     {columnName}
                   </DropdownMenuCheckboxItem>
@@ -320,7 +269,6 @@ export default function QuestionTable() {
         </DropdownMenu>
       </div>
 
-      {/* 表格 */}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -370,12 +318,10 @@ export default function QuestionTable() {
         </Table>
       </div>
 
-      {/* 分页器 */}
       <div className="flex items-center justify-between space-x-2 py-4">
         <div className="text-sm text-muted-foreground">
-          共 {table.getFilteredRowModel().rows.length} 条记录
+          共 {totalCount} 条记录
         </div>
-
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-2">
             <p className="text-sm font-medium">每页显示</p>
@@ -398,7 +344,6 @@ export default function QuestionTable() {
             </Select>
             <p className="text-sm font-medium">条</p>
           </div>
-
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
@@ -408,9 +353,20 @@ export default function QuestionTable() {
             >
               上一页
             </Button>
-            <div className="flex items-center justify-center text-sm font-medium">
-              第 {table.getState().pagination.pageIndex + 1} 页，共{" "}
-              {table.getPageCount()} 页
+            <div className="flex items-center space-x-1">
+              <p className="text-sm">前往</p>
+              <Input
+                className="h-8 w-14 text-center"
+                type="text"
+                value={pageInput}
+                onChange={handlePageInputChange}
+                onKeyDown={handlePageInputKeyDown}
+                onBlur={handlePageJump}
+              />
+              <p className="text-sm">页</p>
+              <span className="mx-1 text-sm">
+                (共 {table.getPageCount()} 页)
+              </span>
             </div>
             <Button
               variant="outline"
