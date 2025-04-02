@@ -43,6 +43,16 @@ import { setFilter } from "@/modules/question";
 import { useAppDispatch, useAppSelector } from "@/modules/stores";
 import { useEffect, useState, useMemo } from "react";
 import { getQuestions } from "@/api/question";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import QuestionDialog from "@/pages/question-bank/components/QuestionDialog";
 
 type Question = {
   id: string;
@@ -51,6 +61,7 @@ type Question = {
   subject: string;
   difficulty: string;
   creator: string;
+  grade?: string;
 };
 
 export default function QuestionTable() {
@@ -64,6 +75,11 @@ export default function QuestionTable() {
   const [pageInput, setPageInput] = useState<string>(String(currentPage + 1));
   const [data, setData] = useState<Question[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
+
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
+    null
+  );
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -86,6 +102,15 @@ export default function QuestionTable() {
     fetchData();
   }, [currentPage, currentPageSize, search]);
 
+  const handleEdit = (question: Question) => {
+    setSelectedQuestion(question);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = (id: string) => {
+    console.log("收藏", id);
+  };
+
   const columns: ColumnDef<Question>[] = useMemo(
     () => [
       {
@@ -103,15 +128,27 @@ export default function QuestionTable() {
         ),
       },
       {
-        accessorKey: "type",
-        header: "题型",
+        accessorKey: "subject",
+        header: "学科",
         cell: ({ getValue }) => (
-          <div className="max-w-[150px] truncate">{getValue() as string}</div>
+          <div
+            className={`max-w-[150px] truncate ${
+              getValue() === "数学"
+                ? "text-blue-500"
+                : getValue() === "英语"
+                ? "text-green-500"
+                : getValue() === "物理"
+                ? "text-purple-500"
+                : "text-gray-700"
+            }`}
+          >
+            {getValue() as string}
+          </div>
         ),
       },
       {
-        accessorKey: "subject",
-        header: "科目",
+        accessorKey: "type",
+        header: "题型",
         cell: ({ getValue }) => (
           <div className="max-w-[150px] truncate">{getValue() as string}</div>
         ),
@@ -129,6 +166,23 @@ export default function QuestionTable() {
         cell: ({ getValue }) => (
           <div className="max-w-[150px] truncate">{getValue() as string}</div>
         ),
+      },
+      {
+        id: "actions",
+        header: "操作",
+        cell: ({ row }) => {
+          const question = row.original;
+          return (
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => handleEdit(question)}>
+                详情
+              </Button>
+              <Button size="sm" onClick={() => handleDelete(question.id)}>
+                收藏
+              </Button>
+            </div>
+          );
+        },
       },
     ],
     []
@@ -252,6 +306,7 @@ export default function QuestionTable() {
                     subject: "科目",
                     difficulty: "难度",
                     creator: "创建者",
+                    grade: "年级",
                   }[column.id] || column.id;
                 return (
                   <DropdownMenuCheckboxItem
@@ -269,13 +324,16 @@ export default function QuestionTable() {
         </DropdownMenu>
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-2xl shadow-md border border-gray-200 overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-gray-100">
             {table.getHeaderGroups().map((group) => (
               <TableRow key={group.id}>
                 {group.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="text-gray-700 text-sm font-semibold"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -293,9 +351,10 @@ export default function QuestionTable() {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() ? "selected" : undefined}
+                  className="odd:bg-white even:bg-gray-50 hover:bg-gray-100"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="align-middle">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -379,6 +438,15 @@ export default function QuestionTable() {
           </div>
         </div>
       </div>
+
+      {/* 弹窗显示题目详情 */}
+      {selectedQuestion && (
+        <QuestionDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          data={selectedQuestion}
+        />
+      )}
     </div>
   );
 }
