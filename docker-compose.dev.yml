@@ -1,19 +1,19 @@
 version: '3.9'
 
 services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: ../deploy/dev/dockerfile.frontend
-    container_name: edupal_frontend_dev
-    working_dir: /app
-    command: ["pnpm", "dev"]
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules  # 防止主机和容器的 node_modules 冲突
-    ports:
-      - "5173:5173"  # 前端开发端口
-    restart: always
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: ../deploy/dev/dockerfile.frontend
+  #   container_name: edupal_frontend_dev
+  #   working_dir: /app
+  #   command: ["pnpm", "dev"]
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules  # 防止主机和容器的 node_modules 冲突
+  #   ports:
+  #     - "5173:5173"  # 前端开发端口
+  #   restart: always
 
   backend:
     build:

@@ -56,7 +56,7 @@ async def gen_question(
 
 
 @router.get("/get", summary="获取题目")
-def get_questions(filters: QuestionFilter, db: Session = Depends(get_db)):
+def get_questions(filters: QuestionFilter = Depends(), db: Session = Depends(get_db)):
     stmt = select(Question).where(Question.is_deleted == False)
 
     if filters.user_id is not None:
