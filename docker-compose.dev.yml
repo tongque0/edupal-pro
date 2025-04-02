@@ -33,7 +33,7 @@ services:
     environment:
       - SECRET_KEY=your-secret-key
       - EXPIRE_DAYS=7
-      - DATABASE_URL=mysql+mysqlconnector://edupal:edupal@mysql:3306/edupal
+      - DATABASE_URL=mysql+pymysql://edupal:edupal@mysql:3306/edupal
       - RABBITMQ_URL=amqp://user:password@rabbitmq:5672/
       - api_key=your_api_key
       - base_url=http://localhost:8000
@@ -46,23 +46,23 @@ services:
       - rabbitmq
     restart: on-failure
 
-  agent:
-    build:
-      context: agent
-      dockerfile: ../deploy/dev/dockerfile.agent
-    container_name: edupal_agent_dev
-    command: ["go", "run", "main.go"]
-    environment:
-      - DATABASE_URL=edupal:edupal@tcp(mysql:3306)/edupal?charset=utf8mb4&parseTime=True&loc=Local
-      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672/
-      - api_key=your_api_key
-      - base_url=http://localhost:8000
-    volumes:
-      - ./agent:/app
-    depends_on:
-      - mysql
-      - rabbitmq
-    restart: on-failure
+  # agent:
+  #   build:
+  #     context: agent
+  #     dockerfile: ../deploy/dev/dockerfile.agent
+  #   container_name: edupal_agent_dev
+  #   command: ["go", "run", "main.go"]
+  #   environment:
+  #     - DATABASE_URL=edupal:edupal@tcp(mysql:3306)/edupal?charset=utf8mb4&parseTime=True&loc=Local
+  #     - RABBITMQ_URL=amqp://user:password@rabbitmq:5672/
+  #     - api_key=your_api_key
+  #     - base_url=http://localhost:8000
+  #   volumes:
+  #     - ./agent:/app
+  #   depends_on:
+  #     - mysql
+  #     - rabbitmq
+  #   restart: on-failure
 
   mysql:
     image: mysql:8.0

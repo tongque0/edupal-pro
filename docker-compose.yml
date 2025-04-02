@@ -35,20 +35,21 @@ services:
       - edupal_rabbitmq
     restart: on-failure
 
-  # agent:
-  #   build:
-  #     context: ./agent
-  #     dockerfile: ../deploy/prod/dockerfile.agent
-  #   command: ["go", "run", "main.go"]
-  #   environment:
-  #     - DATABASE_URL=mysql+mysqlconnector://edupal:edupal@edupal_mysql:3306/edupal
-  #     - RABBITMQ_URL=amqp://user:password@edupal_rabbitmq:5672/
-  #   volumes:
-  #     - ./agent:/app
-  #   depends_on:
-  #     - edupal_mysql
-  #     - edupal_rabbitmq
-  #   restart: on-failure
+  agent:
+    build:
+      context: ./agent
+      dockerfile: ../deploy/prod/dockerfile.agent
+    environment:
+      - DATABASE_URL=edupal:edupal@tcp(edupal_mysql:3306)/edupal?charset=utf8mb4&parseTime=True&loc=Local
+      - RABBITMQ_URL=amqp://user:password@edupal_rabbitmq:5672/
+      - api_key=your_api_key
+      - base_url=http://localhost:8000
+    volumes:
+      - ./agent:/app
+    depends_on:
+      - edupal_mysql
+      - edupal_rabbitmq
+    restart: on-failure
 
   edupal_mysql:
     image: mysql:8.0
