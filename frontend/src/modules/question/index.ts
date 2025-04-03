@@ -12,8 +12,14 @@ export interface QuestionFilters {
   pageSize: string; // 可选的分页字段
 }
 
+export interface QuestionTrace {
+  isGening: boolean; // 是否正在生成题目
+  sourceId: string; // 生成的批次 ID
+}
+
 export interface QuestionState {
   filters: QuestionFilters;
+  trace: QuestionTrace; // 题目生成追踪记录
 }
 
 const initialState: QuestionState = {
@@ -26,6 +32,10 @@ const initialState: QuestionState = {
     orderBy: "newest", // 默认按创建时间排序
     page: "1", // 默认第一页
     pageSize: "10", // 默认每页10条
+  },
+  trace: {
+    isGening: false, // 是否正在生成题目
+    sourceId: "", // 生成的批次 ID
   },
 };
 
@@ -43,10 +53,14 @@ const questionSlice = createSlice({
     resetFilters(state) {
       state.filters = initialState.filters;
     },
+    setTrace(state, action: PayloadAction<QuestionTrace>) {
+      state.trace = action.payload;
+    },
+
   },
 });
 
-export const { setFilter, resetFilters } = questionSlice.actions;
+export const { setFilter, resetFilters,setTrace } = questionSlice.actions;
 
 export const selectQuestionState = (state: RootState) => state.question;
 
