@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"agent/dal/model"
 	"fmt"
 	"log"
 	"os"
@@ -33,4 +34,18 @@ func Init() {
 	}
 
 	log.Printf("数据库连接成功: %s", dsn)
+
+	var count int64
+	DB.Model(&model.Question{}).Count(&count)
+
+	if count <= 1 {
+		log.Println("Question 表记录数小于等于1，插入初始化数据...")
+		insertInitialQuestions()
+		DB.Model(&model.Question{}).Count(&count)
+		if count > 1 {
+			log.Println("初始化数据插入成功", count)
+		} else {
+			log.Println("初始化数据插入失败")
+		}
+	}
 }
