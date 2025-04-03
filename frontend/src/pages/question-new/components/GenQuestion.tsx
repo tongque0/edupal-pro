@@ -131,9 +131,9 @@ export default function GenQuestion() {
       params.difficulties = randomDifficulties; // 使用随机生成的难度数组
     }
 
-    const res = await genQuestions(params);
+    const res = await genQuestions({...params, source_id: reduxTrace.sourceId});
     if (res.source_id) {
-      dispatch(setTrace({ isGening: true, sourceId: res.source_id }));
+      dispatch(setTrace({ isGening: false, sourceId: res.source_id }));
     } else {
       toast.error("生成失败，请稍后再试！");
       dispatch(setTrace({ isGening: false, sourceId: "" })); // 设置生成状态为 false

@@ -23,7 +23,7 @@ export const genQuestions = async (params: {
     const res = await request.post("/question/gen", body, {
       params: source_id ? { source_id } : {}, // ✅ 通过 query 传递 source_id（如果有）
     });
-    return res.data; // { message, source_id }
+    return res.data;
   } catch (error) {
     console.error("题目生成失败:", error);
     throw error;

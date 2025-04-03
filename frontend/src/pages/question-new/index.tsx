@@ -6,7 +6,7 @@ import NewQuestion from "@/pages/question-new/components/NewQuestion";
 import QuestionList from "@/pages/question-new/components/QuestionList";
 export default function GeneratePage() {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-[80vh] flex-col">
       <main className="flex-1 container mx-auto py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div>
@@ -29,7 +29,7 @@ export default function GeneratePage() {
           </div>
 
           <div className="space-y-4">
-            {/* <QuestionList /> */}
+            <QuestionList />
           </div>
         </div>
       </main>
