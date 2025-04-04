@@ -1,145 +1,123 @@
-"use client";
+"use client"
 
-import * as React from "react";
+import * as React from "react"
 import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type SortingState,
+  type VisibilityState,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
   flexRender,
-} from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown } from "lucide-react";
+} from "@tanstack/react-table"
+import { ArrowUpDown, ChevronDown } from "lucide-react"
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/dropdown-menu"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-import { setFilter } from "@/modules/question";
-import { useAppDispatch, useAppSelector } from "@/modules/stores";
-import { useEffect, useState, useMemo } from "react";
-import { getQuestions } from "@/api/question";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import QuestionDialog from "@/pages/question-bank/components/QuestionDialog";
+import { setFilter } from "@/modules/question"
+import { useAppDispatch, useAppSelector } from "@/modules/stores"
+import { useEffect, useState, useMemo } from "react"
+import { getQuestions } from "@/api/question"
+import QuestionDialog from "@/pages/question-bank/components/QuestionDialog"
 
 type Question = {
-  id: string;
-  question: string;
-  type: string;
-  subject: string;
-  difficulty: string;
-  creator: string;
-  grade?: string;
-};
+  id: string
+  question: string
+  type: string
+  subject: string
+  difficulty: string
+  creator: string
+  grade?: string
+}
 
 export default function QuestionTable() {
-  const dispatch = useAppDispatch();
-  const reduxFilters = useAppSelector((state) => state.question.filters);
-  const { search, page, pageSize } = reduxFilters;
+  const dispatch = useAppDispatch()
+  const reduxFilters = useAppSelector((state) => state.question.filters)
+  const { search, page, pageSize, subject, type, difficulty, grade } = reduxFilters
 
-  const currentPage = page ? parseInt(page as string, 10) - 1 : 0;
-  const currentPageSize = pageSize ? parseInt(pageSize as string, 10) : 10;
+  const currentPage = page ? Number.parseInt(page as string, 10) - 1 : 0
+  const currentPageSize = pageSize ? Number.parseInt(pageSize as string, 10) : 10
 
-  const [pageInput, setPageInput] = useState<string>(String(currentPage + 1));
-  const [data, setData] = useState<Question[]>([]);
-  const [totalCount, setTotalCount] = useState<number>(0);
+  const [pageInput, setPageInput] = useState<string>(String(currentPage + 1))
+  const [data, setData] = useState<Question[]>([])
+  const [totalCount, setTotalCount] = useState<number>(0)
 
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
-    null
-  );
-  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null)
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await getQuestions({
-          page: currentPage + 1,
-          page_size: currentPageSize,
-        });
+        const params = Object.fromEntries(
+          Object.entries({
+            subject: subject,
+            difficulty: difficulty,
+            type: type,
+            grade: grade,
+            page: currentPage + 1,
+            page_size: currentPageSize,
+          }).filter(([_, v]) => v !== "all"),
+        )
+        const res = await getQuestions(params)
         const mapped = (res.data || []).map((item: any) => ({
           ...item,
           question: item.content.trim(),
           type: item.type || "未知",
-        }));
-        setData(mapped);
-        setTotalCount(res.total_count || 0);
+        }))
+        setData(mapped)
+        setTotalCount(res.total_count || 0)
       } catch (error) {
-        console.error("获取题库数据失败:", error);
+        console.error("获取题库数据失败:", error)
       }
-    };
-    fetchData();
-  }, [currentPage, currentPageSize, search]);
+    }
+    fetchData()
+  }, [currentPage, currentPageSize, search, subject, difficulty, type, grade])
 
   const handleEdit = (question: Question) => {
-    setSelectedQuestion(question);
-    setDialogOpen(true);
-  };
+    setSelectedQuestion(question)
+    setDialogOpen(true)
+  }
 
   const handleDelete = (id: string) => {
-    console.log("收藏", id);
-  };
+    console.log("收藏", id)
+  }
 
   const columns: ColumnDef<Question>[] = useMemo(
     () => [
       {
         accessorKey: "question",
         header: ({ column }) => (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
+          <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
             题目 <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         ),
-        cell: ({ getValue }) => (
-          <div className="max-w-[200px] truncate">{getValue() as string}</div>
-        ),
+        cell: ({ getValue }) => <div className="max-w-[200px] truncate">{getValue() as string}</div>,
       },
       {
         accessorKey: "subject",
         header: "学科",
         cell: ({ getValue }) => (
           <div
-            className={`max-w-[150px] truncate ${
+            className={`max-w-[150px] truncate font-medium px-2 py-1 rounded-full text-sm inline-block ${
               getValue() === "数学"
-                ? "text-blue-500"
+                ? "bg-blue-50 text-blue-600"
                 : getValue() === "英语"
-                ? "text-green-500"
-                : getValue() === "物理"
-                ? "text-purple-500"
-                : "text-gray-700"
+                  ? "bg-green-50 text-green-600"
+                  : getValue() === "物理"
+                    ? "bg-purple-50 text-purple-600"
+                    : "bg-gray-50 text-gray-700"
             }`}
           >
             {getValue() as string}
@@ -149,48 +127,52 @@ export default function QuestionTable() {
       {
         accessorKey: "type",
         header: "题型",
-        cell: ({ getValue }) => (
-          <div className="max-w-[150px] truncate">{getValue() as string}</div>
-        ),
+        cell: ({ getValue }) => <div className="max-w-[150px] truncate">{getValue() as string}</div>,
       },
       {
         accessorKey: "difficulty",
         header: "难度",
-        cell: ({ getValue }) => (
-          <div className="max-w-[150px] truncate">{getValue() as string}</div>
-        ),
+        cell: ({ getValue }) => <div className="max-w-[150px] truncate">{getValue() as string}</div>,
       },
       {
         accessorKey: "grade",
         header: "年级",
-        cell: ({ getValue }) => (
-          <div className="max-w-[150px] truncate">{getValue() as string}</div>
-        ),
+        cell: ({ getValue }) => <div className="max-w-[150px] truncate">{getValue() as string}</div>,
       },
       {
         id: "actions",
         header: "操作",
         cell: ({ row }) => {
-          const question = row.original;
+          const question = row.original
           return (
             <div className="flex gap-2">
-              <Button size="sm" onClick={() => handleEdit(question)}>
+              <Button
+                size="sm"
+                variant="outline"
+                className="font-medium hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                onClick={() => handleEdit(question)}
+              >
                 详情
               </Button>
-              <Button size="sm" onClick={() => handleDelete(question.id)}>
+              <Button
+                size="sm"
+                variant="outline"
+                className="font-medium hover:bg-amber-50 hover:text-amber-600 transition-colors"
+                onClick={() => handleDelete(question.id)}
+              >
                 收藏
               </Button>
             </div>
-          );
+          )
         },
       },
     ],
-    []
-  );
+    [],
+  )
 
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
 
   const table = useReactTable({
     data,
@@ -208,21 +190,17 @@ export default function QuestionTable() {
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: (updater) => {
-      let newPagination;
+      let newPagination
       if (typeof updater === "function") {
         newPagination = updater({
           pageIndex: currentPage,
           pageSize: currentPageSize,
-        });
+        })
       } else {
-        newPagination = updater;
+        newPagination = updater
       }
-      dispatch(
-        setFilter({ key: "page", value: String(newPagination.pageIndex + 1) })
-      );
-      dispatch(
-        setFilter({ key: "pageSize", value: String(newPagination.pageSize) })
-      );
+      dispatch(setFilter({ key: "page", value: String(newPagination.pageIndex + 1) }))
+      dispatch(setFilter({ key: "pageSize", value: String(newPagination.pageSize) }))
     },
     manualPagination: true,
     pageCount: Math.ceil(totalCount / currentPageSize),
@@ -231,66 +209,62 @@ export default function QuestionTable() {
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getRowId: (row) => row.id,
-  });
+  })
 
   useEffect(() => {
-    setPageInput(String(currentPage + 1));
-  }, [currentPage]);
+    setPageInput(String(currentPage + 1))
+  }, [currentPage])
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      table.getColumn("question")?.setFilterValue(search);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [search, table]);
+      table.getColumn("question")?.setFilterValue(search)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [search, table])
 
-  const pageSizeOptions = [5, 10, 20, 50];
+  const pageSizeOptions = [5, 10, 20, 50]
 
   const handlePageSizeChange = React.useCallback(
     (value: string) => {
-      table.setPageSize(Number(value));
+      table.setPageSize(Number(value))
     },
-    [table]
-  );
+    [table],
+  )
 
   const handlePageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPageInput(e.target.value);
-  };
+    setPageInput(e.target.value)
+  }
 
   const handlePageJump = () => {
-    const pageNumber = parseInt(pageInput, 10);
-    if (
-      !isNaN(pageNumber) &&
-      pageNumber > 0 &&
-      pageNumber <= table.getPageCount()
-    ) {
-      table.setPageIndex(pageNumber - 1);
+    const pageNumber = Number.parseInt(pageInput, 10)
+    if (!isNaN(pageNumber) && pageNumber > 0 && pageNumber <= table.getPageCount()) {
+      table.setPageIndex(pageNumber - 1)
     } else {
-      setPageInput(String(table.getState().pagination.pageIndex + 1));
+      setPageInput(String(table.getState().pagination.pageIndex + 1))
     }
-  };
+  }
 
   const handlePageInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      handlePageJump();
+      handlePageJump()
     }
-  };
+  }
 
   return (
-    <div className="w-full">
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="搜索题目..."
-          value={search}
-          onChange={(e) =>
-            dispatch(setFilter({ key: "search", value: e.target.value }))
-          }
-          className="max-w-sm"
-        />
-        <Button className="ml-2">搜索</Button>
+    <div className="w-full max-w-[1200px] mx-auto px-4 md:px-6">
+      <div className="flex flex-col md:flex-row md:items-center gap-3 py-6">
+        <div className="flex w-full md:w-auto">
+          <Input
+            placeholder="搜索题目..."
+            value={search}
+            onChange={(e) => dispatch(setFilter({ key: "search", value: e.target.value }))}
+            className="w-full md:w-[320px] rounded-r-none focus-visible:ring-2"
+          />
+          <Button className="rounded-l-none">搜索</Button>
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button variant="outline" className="ml-auto whitespace-nowrap">
               显示列 <ChevronDown className="ml-1 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -307,39 +281,29 @@ export default function QuestionTable() {
                     difficulty: "难度",
                     creator: "创建者",
                     grade: "年级",
-                  }[column.id] || column.id;
+                  }[column.id] || column.id
                 return (
                   <DropdownMenuCheckboxItem
                     key={column.id}
                     checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
+                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
                   >
                     {columnName}
                   </DropdownMenuCheckboxItem>
-                );
+                )
               })}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
-      <div className="rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+      <div className="rounded-xl shadow-lg border border-gray-200 overflow-hidden bg-white">
         <Table>
-          <TableHeader className="bg-gray-100">
+          <TableHeader className="bg-gray-50">
             {table.getHeaderGroups().map((group) => (
               <TableRow key={group.id}>
                 {group.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    className="text-gray-700 text-sm font-semibold"
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                  <TableHead key={header.id} className="text-gray-700 text-sm font-semibold py-4 px-4">
+                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
               </TableRow>
@@ -351,24 +315,18 @@ export default function QuestionTable() {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() ? "selected" : undefined}
-                  className="odd:bg-white even:bg-gray-50 hover:bg-gray-100"
+                  className="odd:bg-white even:bg-gray-50 hover:bg-blue-50 transition-colors duration-150"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="align-middle">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                    <TableCell key={cell.id} className="align-middle py-3 px-4">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   没有匹配的结果
                 </TableCell>
               </TableRow>
@@ -377,21 +335,16 @@ export default function QuestionTable() {
         </Table>
       </div>
 
-      <div className="flex items-center justify-between space-x-2 py-4">
-        <div className="text-sm text-muted-foreground">
-          共 {totalCount} 条记录
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-6">
+        <div className="text-sm font-medium text-gray-600 bg-gray-50 px-4 py-2 rounded-lg">
+          共 <span className="font-bold text-gray-900">{totalCount}</span> 条记录
         </div>
-        <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap items-center gap-4 md:gap-6">
+          <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg">
             <p className="text-sm font-medium">每页显示</p>
-            <Select
-              value={`${table.getState().pagination.pageSize}`}
-              onValueChange={handlePageSizeChange}
-            >
+            <Select value={`${table.getState().pagination.pageSize}`} onValueChange={handlePageSizeChange}>
               <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue
-                  placeholder={table.getState().pagination.pageSize}
-                />
+                <SelectValue placeholder={table.getState().pagination.pageSize} />
               </SelectTrigger>
               <SelectContent side="top">
                 {pageSizeOptions.map((pageSize) => (
@@ -403,10 +356,11 @@ export default function QuestionTable() {
             </Select>
             <p className="text-sm font-medium">条</p>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg">
             <Button
               variant="outline"
               size="sm"
+              className="font-medium hover:bg-blue-50 hover:text-blue-600 transition-colors"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
@@ -415,7 +369,7 @@ export default function QuestionTable() {
             <div className="flex items-center space-x-1">
               <p className="text-sm">前往</p>
               <Input
-                className="h-8 w-14 text-center"
+                className="h-8 w-16 text-center font-medium"
                 type="text"
                 value={pageInput}
                 onChange={handlePageInputChange}
@@ -423,13 +377,12 @@ export default function QuestionTable() {
                 onBlur={handlePageJump}
               />
               <p className="text-sm">页</p>
-              <span className="mx-1 text-sm">
-                (共 {table.getPageCount()} 页)
-              </span>
+              <span className="mx-1 text-sm">(共 {table.getPageCount()} 页)</span>
             </div>
             <Button
               variant="outline"
               size="sm"
+              className="font-medium hover:bg-blue-50 hover:text-blue-600 transition-colors"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >
@@ -440,13 +393,8 @@ export default function QuestionTable() {
       </div>
 
       {/* 弹窗显示题目详情 */}
-      {selectedQuestion && (
-        <QuestionDialog
-          open={dialogOpen}
-          onOpenChange={setDialogOpen}
-          data={selectedQuestion}
-        />
-      )}
+      {selectedQuestion && <QuestionDialog open={dialogOpen} onOpenChange={setDialogOpen} data={selectedQuestion} />}
     </div>
-  );
+  )
 }
+

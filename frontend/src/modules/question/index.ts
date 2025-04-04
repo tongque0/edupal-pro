@@ -5,6 +5,7 @@ export interface QuestionFilters {
   subject: string;
   difficulty: string;
   type: string;
+  grade: string; // 可选的年级字段
   creator: string;
   search: string;
   orderBy: string; // 可选的排序字段
@@ -27,6 +28,7 @@ const initialState: QuestionState = {
     subject: "all",
     difficulty: "all",
     type: "all",
+    grade: "all", // 默认所有年级
     creator: "all",
     search: "",
     orderBy: "newest", // 默认按创建时间排序

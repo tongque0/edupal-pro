@@ -28,10 +28,6 @@ export default function FilterCard() {
     dispatch(setFilter({ key: "orderBy", value: "newest" }));
   };
 
-  const handleApplyFilters = () => {
-    console.log("应用筛选：", reduxFilters);
-  };
-
   const filterConfig = [
     {
       key: "subject",
@@ -68,13 +64,25 @@ export default function FilterCard() {
       ],
     },
     {
-      key: "creator",
-      label: "创建者",
+      key: "grade",
+      label: "年级",
       options: [
         { label: "所有", value: "all" },
-        { label: "我", value: "我" },
-        { label: "教师", value: "教师" },
-        { label: "学生", value: "学生" },
+        { label: "一年级", value: "一年级" },
+        { label: "二年级", value: "二年级" },
+        { label: "三年级", value: "三年级" },
+        { label: "四年级", value: "四年级" },
+        { label: "五年级", value: "五年级" },
+        { label: "六年级", value: "六年级" },
+        { label: "初一", value: "初一" },
+        { label: "初二", value: "初二" },
+        { label: "初三", value: "初三" },
+        { label: "高一", value: "高一" },
+        { label: "高二", value: "高二" },
+        { label: "高三", value: "高三" },
+        { label: "大学", value: "大学" },
+        {label:"研究生", value:"研究生"},
+        {label:"博士", value:"博士"}
       ],
     },
   ];
@@ -117,9 +125,6 @@ export default function FilterCard() {
         <div className="flex justify-end gap-2 pt-2">
           <Button variant="outline" onClick={handleResetFilters}>
             重置
-          </Button>
-          <Button variant="default" onClick={handleApplyFilters}>
-            筛选
           </Button>
         </div>
       </CardContent>
