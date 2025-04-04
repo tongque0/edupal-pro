@@ -1,6 +1,6 @@
 package question
-
 import (
+	"encoding/json"
 	"regexp"
 )
 
@@ -12,7 +12,7 @@ type ExtractedQuestion struct {
 	Question       string
 	Answer         string
 	Type           string
-	Options        map[string]string
+	OptionsJSON    string // 修改为 string 类型，表示完整 JSON 字符串
 }
 
 func ExtractFieldsFromJSON(text string) ExtractedQuestion {
@@ -25,6 +25,21 @@ func ExtractFieldsFromJSON(text string) ExtractedQuestion {
 		return ""
 	}
 
+	optionsMap := make(map[string]string)
+
+	// 提取 options 块
+	optBlockRe := regexp.MustCompile(`"options"\s*:\s*\{([^}]+)\}`)
+	if optBlockMatch := optBlockRe.FindStringSubmatch(text); len(optBlockMatch) > 1 {
+		optionLineRe := regexp.MustCompile(`"([A-D])"\s*:\s*"([^"]+)"`)
+		for _, match := range optionLineRe.FindAllStringSubmatch(optBlockMatch[1], -1) {
+			optionsMap[match[1]] = match[2]
+		}
+	}
+
+	// 序列化为 JSON 字符串
+	optionsJSONBytes, _ := json.Marshal(optionsMap)
+	optionsJSONString := string(optionsJSONBytes)
+
 	result := ExtractedQuestion{
 		Subject:        extract(`"subject"\s*:\s*"([^"]+)"`),
 		Grade:          extract(`"grade"\s*:\s*"([^"]+)"`),
@@ -33,16 +48,7 @@ func ExtractFieldsFromJSON(text string) ExtractedQuestion {
 		Question:       extract(`"question"\s*:\s*"([^"]+)"`),
 		Answer:         extract(`"answer"\s*:\s*"([^"]+)"`),
 		Type:           extract(`"type"\s*:\s*"([^"]+)"`),
-		Options:        make(map[string]string),
-	}
-
-	// 提取 options 块
-	optBlockRe := regexp.MustCompile(`"options"\s*:\s*\{([^}]+)\}`)
-	if optBlockMatch := optBlockRe.FindStringSubmatch(text); len(optBlockMatch) > 1 {
-		optionLineRe := regexp.MustCompile(`"([A-D])"\s*:\s*"([^"]+)"`)
-		for _, match := range optionLineRe.FindAllStringSubmatch(optBlockMatch[1], -1) {
-			result.Options[match[1]] = match[2]
-		}
+		OptionsJSON:    optionsJSONString,
 	}
 
 	return result

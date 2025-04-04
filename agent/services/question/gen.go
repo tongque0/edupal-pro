@@ -5,7 +5,6 @@ import (
 	"agent/dal/mysql"
 	"agent/dal/query"
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -31,7 +30,7 @@ func GenQuestion(q QuestionRequest) error {
 	// 初始化OpenAI客户端
 	ctx := context.Background()
 	client, err := openai.NewChatModel(ctx, &openai.ChatModelConfig{
-		APIKey:  "sk-cVuSn5jWXEdampxMw50CvVvT8WiFlDxnzi8RqKOaLuOzJBMy", // 考虑从环境变量中读取API密钥
+		APIKey:  "sk-MlUCO1oxmEHjx0D6UDeqfQzK7kVd1KAccoc0N41pbvJw0lx4", // 考虑从环境变量中读取API密钥
 		Timeout: 30 * time.Second,
 		Model:   "gpt-4o",
 		BaseURL: "https://api.zetatechs.com/v1", // 也可以配置成常量
@@ -65,7 +64,7 @@ func GenQuestion(q QuestionRequest) error {
 		Content:    question.Question,
 		Answer:     question.Answer,
 		Type:       question.Type,
-		Options:    serializeOptions(question.Options),
+		Options:    question.OptionsJSON,
 		SourceID:   q.SourceID,
 		IsPublic:   true,
 	}
@@ -101,21 +100,12 @@ func GenQuestion(q QuestionRequest) error {
 		question.Grade,
 		question.Difficulty,
 		question.Type,
-		serializeOptions(question.Options),
+		question.OptionsJSON,
 		question.Answer,
 		q.SourceID,
 	)
 
 	return nil
-}
-
-func serializeOptions(options map[string]string) string {
-	optionsJSON, err := json.Marshal(options)
-	if err != nil {
-		fmt.Printf("选项序列化失败: %s\n", err)
-		return ""
-	}
-	return string(optionsJSON)
 }
 
 func genPrompt(q QuestionRequest) string {
