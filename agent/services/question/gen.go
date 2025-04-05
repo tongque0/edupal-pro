@@ -58,6 +58,7 @@ func GenQuestion(q QuestionRequest) error {
 
 	// 创建新的题目记录
 	newquestion := &model.Question{
+		UserID:      q.UserID,
 		Subject:     question.Subject,
 		Grade:       question.Grade,
 		Difficulty:  question.Difficulty,
@@ -87,6 +88,7 @@ func GenQuestion(q QuestionRequest) error {
 	}
 
 	fmt.Printf(`
+	
 	📘 题目内容 ：%s
 	🧠 学科     ：%s
 	🎓 年级     ：%s
