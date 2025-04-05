@@ -58,6 +58,11 @@ def init_enforcer():
     _enforcer.add_policy("default", "/question/gen", "POST")
     _enforcer.add_policy("default", "/question/get", "GET")
     _enforcer.add_policy("default", "/question/trace/*", "GET")
+    _enforcer.add_policy("default", "/question/new", "POST")
+    _enforcer.add_policy("default", "/question/update/*", "PUT")
+    _enforcer.add_policy("default", "/question/delete/*", "DELETE")
+    _enforcer.add_policy("default", "/question/delete_batch", "DELETE")
+
 
     # user 角色权限 (普通用户权限)
     _enforcer.add_policy("user", "/courses/*/enroll", "POST")

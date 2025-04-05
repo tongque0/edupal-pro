@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select,func
 from app.rabbitmq import send_question
 from app.models import Question, QuestionTrace
-from app.routes.question.question_schemas import QuestionFilter
+from app.routes.question.question_schemas import QuestionFilter,  QuestionCRUD
 from app.database import get_db
 router = APIRouter()
 
@@ -86,6 +86,128 @@ def get_questions(filters: QuestionFilter = Depends(), db: Session = Depends(get
     return {
         "total_count": total_count,
         "data": data,
+    }
+
+
+@router.post("/new", summary="创建题目")
+def create_question(
+    request: Request,
+    question: QuestionCRUD,
+    db: Session = Depends(get_db),
+):
+    user_id = request.state.user.get("id")
+    orm_question = Question(
+        user_id=user_id,
+        subject=question.subject,
+        grade=question.grade,
+        difficulty=question.difficulty,
+        type=question.type,
+        content=question.content,
+        options=question.options,
+        answer=question.answer,
+        explanation=question.explanation,
+        is_public=question.is_public,
+        tag=question.tag,
+        source_id=question.source_id or str(uuid.uuid4()),
+        is_deleted=False,  # 如果你有这个字段
+    )
+
+    db.add(orm_question)
+    db.commit()
+    db.refresh(orm_question)
+
+    return {
+        "source_id": orm_question.source_id,
+        "question": orm_question,
+    }
+
+
+@router.put("/update/{question_id}", summary="更新题目")
+def update_question(
+    request: Request,
+    question_id: int,
+    question: QuestionCRUD,
+    db: Session = Depends(get_db),
+):
+    user_id = request.state.user.get("id")
+    stmt = select(Question).where(
+        Question.is_deleted == False,
+        Question.id == question_id,
+        Question.user_id == user_id,  # 只能更新自己的问题
+    )
+    result = db.execute(stmt)
+    existing_question = result.scalar_one_or_none()
+
+    if not existing_question:
+        raise HTTPException(status_code=404, detail="题目不存在或无权限更新")
+
+    # 更新题目信息
+    for key, value in question.dict(exclude_unset=True).items():
+        setattr(existing_question, key, value)
+
+    db.commit()
+    db.refresh(existing_question)
+
+    return {
+        "message": "题目更新成功",
+        "question": existing_question,
+    }
+
+@router.delete("/delete/{question_id}", summary="删除题目")
+def delete_question(
+    request: Request,
+    question_id: int,
+    db: Session = Depends(get_db),
+):
+    user_id = request.state.user.get("id")
+    stmt = select(Question).where(
+        Question.is_deleted == False,
+        Question.id == question_id,
+        Question.user_id == user_id,  # 只能删除自己的问题
+    )
+    result = db.execute(stmt)
+    question = result.scalar_one_or_none()
+
+    if not question:
+        raise HTTPException(status_code=404, detail="题目不存在或无权限删除")
+
+    # 逻辑删除
+    question.is_deleted = True
+    db.commit()
+
+    return {
+        "message": "题目删除成功",
+        "question_id": question_id,
+    }
+
+@router.delete("/delete_batch", summary="批量删除题目")
+def delete_questions(
+    request: Request,
+    question_ids: List[int],
+    db: Session = Depends(get_db),
+):
+    user_id = request.state.user.get("id")
+    stmt = select(Question).where(
+        Question.is_deleted == False,
+        Question.id.in_(question_ids),
+        Question.user_id == user_id,  # 只能删除自己的问题
+    )
+    result = db.execute(stmt)
+    questions = result.scalars().all()
+
+    if not questions:
+        raise HTTPException(status_code=404, detail="题目不存在或无权限删除")
+
+    # 批量逻辑删除
+    for question in questions:
+        question.is_deleted = True
+
+    db.commit()
+
+    return {
+        "message": "题目批量删除成功",
+        "question_ids": question_ids,
+        "deleted_count": len(questions),
     }
 
 

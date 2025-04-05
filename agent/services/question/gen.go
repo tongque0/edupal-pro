@@ -58,15 +58,16 @@ func GenQuestion(q QuestionRequest) error {
 
 	// 创建新的题目记录
 	newquestion := &model.Question{
-		Subject:    question.Subject,
-		Grade:      question.Grade,
-		Difficulty: question.Difficulty,
-		Content:    question.Question,
-		Answer:     question.Answer,
-		Type:       question.Type,
-		Options:    question.OptionsJSON,
-		SourceID:   q.SourceID,
-		IsPublic:   true,
+		Subject:     question.Subject,
+		Grade:       question.Grade,
+		Difficulty:  question.Difficulty,
+		Content:     question.Question,
+		Answer:      question.Answer,
+		Type:        question.Type,
+		Options:     question.OptionsJSON,
+		SourceID:    q.SourceID,
+		Explanation: question.Explanation,
+		IsPublic:    true,
 	}
 
 	// 插入题目到数据库

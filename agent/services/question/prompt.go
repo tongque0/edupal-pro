@@ -24,6 +24,7 @@ func selectPrompt(req QuestionRequest) string {
     "C": "选项C",
     "D": "选项D"
   },
+  "explanation": "题目解析",
   "answer": "正确答案的字母",
   "type": "选择题"
 }`, req.Subject, req.Grade, req.Difficulty, req.KnowledgePoint,
@@ -45,6 +46,7 @@ func fillPrompt(req QuestionRequest) string {
   "difficulty": "%s",
   "knowledge_point": "%s",
   "question": "题目内容，空白处用 ____ 表示",
+  "explanation": "题目解析",
   "answer": "正确答案",
   "type": "填空题"
 }`, req.Subject, req.Grade, req.Difficulty, req.KnowledgePoint,
@@ -71,6 +73,7 @@ func trueFalsePrompt(req QuestionRequest) string {
     "A": "对",
     "B": "错"
   },
+  "explanation": "题目解析",
   "answer": "A",
   "type": "判断题"
 }`, req.Subject, req.Grade, req.Difficulty, req.KnowledgePoint,
@@ -92,6 +95,7 @@ func calculationPrompt(req QuestionRequest) string {
   "difficulty": "%s",
   "knowledge_point": "%s",
   "question": "题目内容",
+  "explanation": "题目解析",
   "answer": "计算结果",
   "type": "计算题"
 }`, req.Subject, req.Grade, req.Difficulty, req.KnowledgePoint,
@@ -113,6 +117,7 @@ func defaultPrompt(req QuestionRequest) string {
   "difficulty": "%s",
   "knowledge_point": "%s",
   "question": "题目内容",
+  "explanation": "题目解析",
   "answer": "正确答案",
   "type": "其他"
 }`, req.Subject, req.Grade, req.Difficulty, req.KnowledgePoint,

@@ -1,4 +1,5 @@
 package question
+
 import (
 	"encoding/json"
 	"regexp"
@@ -13,6 +14,7 @@ type ExtractedQuestion struct {
 	Answer         string
 	Type           string
 	OptionsJSON    string // 修改为 string 类型，表示完整 JSON 字符串
+	Explanation    string
 }
 
 func ExtractFieldsFromJSON(text string) ExtractedQuestion {
@@ -48,6 +50,7 @@ func ExtractFieldsFromJSON(text string) ExtractedQuestion {
 		Question:       extract(`"question"\s*:\s*"([^"]+)"`),
 		Answer:         extract(`"answer"\s*:\s*"([^"]+)"`),
 		Type:           extract(`"type"\s*:\s*"([^"]+)"`),
+		Explanation:    extract(`"explanation"\s*:\s*"([^"]+)"`),
 		OptionsJSON:    optionsJSONString,
 	}
 

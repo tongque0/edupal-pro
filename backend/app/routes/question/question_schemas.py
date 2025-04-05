@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field  # ✅ 正确导入 Field
 from typing import Optional
 from datetime import datetime
+
 class QuestionRead(BaseModel):
     id: int
     user_id: Optional[int]
@@ -30,3 +31,16 @@ class QuestionFilter(BaseModel):
 
     page: int = Field(default=-1, description="页码（默认 -1 表示不分页）")
     page_size: int = Field(default=10, ge=1, le=100, description="每页数量（仅分页时有效）")
+
+class QuestionCRUD(BaseModel):
+    subject: str
+    grade: str
+    difficulty: str
+    type: str
+    content: str
+    options: Optional[str] = None
+    answer: Optional[str] = None
+    explanation: Optional[str] = None
+    is_public: bool = Field(default=True)
+    tag: Optional[str] = None
+    source_id: Optional[str] = None
