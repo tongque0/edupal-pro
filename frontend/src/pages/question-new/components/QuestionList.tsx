@@ -27,9 +27,7 @@ export default function QuestionList() {
 
   // 获取题目追踪数据
   const fetchTraceData = async () => {
-    console.log("reduxTrace.sourceId", reduxTrace);
     if (!reduxTrace.sourceId) return;
-    if (reduxTrace.isEditing) return;
     try {
       const res = await getQuestions({ source_id: reduxTrace.sourceId });
       if (res.data && res.data.length > 0) {
@@ -54,10 +52,25 @@ export default function QuestionList() {
   };
 
   useEffect(() => {
-    fetchTraceData(); // 初次加载
-    pollingRef.current = setInterval(() => {
-      fetchTraceData();
-    }, 2000);
+    if (!reduxTrace.isEditing) {
+      fetchTraceData(); // 只在不编辑时获取数据
+
+      // 只在非编辑模式下设置轮询
+      if (!pollingRef.current) {
+        pollingRef.current = setInterval(() => {
+          if (!reduxTrace.isEditing) {
+            // 在间隔内再次检查
+            fetchTraceData();
+          }
+        }, 2000);
+      }
+    } else {
+      // 编辑时清除间隔
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    }
 
     return () => {
       if (pollingRef.current) {
@@ -65,7 +78,7 @@ export default function QuestionList() {
         pollingRef.current = null;
       }
     };
-  }, [reduxTrace.sourceId]);
+  }, [reduxTrace.sourceId, reduxTrace.isEditing]); // 添加 isEditing 作为依赖项
 
   const handleEdit = (q: QuestionDetail) => {
     setSelectedQuestion({

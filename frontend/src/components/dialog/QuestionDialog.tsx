@@ -106,15 +106,18 @@ const QuestionDialog: React.FC<QuestionDialogProps> = ({
   const [editableOptions, setEditableOptions] = useState<[string, string][]>(
     []
   );
+  // 在 QuestionDialog.tsx 中，修改 useEffect 如下：
   useEffect(() => {
-    if (open && (mode === "edit" || mode === "create")) {
-      dispatch(setTraceEditing(true));
-    } else if (!open) {
+    if (open) {
+      // 打开时立即设置编辑状态
+      if (mode === "edit" || mode === "create") {
+        dispatch(setTraceEditing(true));
+      }
+    } else {
+      // 只在对话框关闭时重置
       dispatch(setTraceEditing(false));
     }
-    console.log("对话框打开状态:", open, mode);
-    console.log("reduxTrace:", reduxTrace);
-  }, [open, mode]);
+  }, [open, mode, dispatch]);
 
   useEffect(() => {
     if (mode === "create") {
@@ -219,6 +222,7 @@ const QuestionDialog: React.FC<QuestionDialogProps> = ({
       options: JSON.stringify(optionObj),
       answer: formData.answer,
       explanation: formData.analysis,
+      source_id: reduxTrace.sourceId,
     };
 
     try {
@@ -227,19 +231,16 @@ const QuestionDialog: React.FC<QuestionDialogProps> = ({
       if (internalMode === "create") {
         result = await newQuestion({
           ...payload,
-          source_id: reduxTrace.sourceId,
         });
-        console.log("创建结果:", result);
       } else {
         if (!reduxTrace.sourceId) {
           toast.error("题目 ID 不存在，更新失败");
           return;
         }
         result = await updateQuestion({
-          id: Number(reduxTrace.sourceId),
+          id: formData.id ?? 0,
           ...payload,
         });
-        console.log("更新结果:", result);
       }
 
       if (result?.source_id) {
