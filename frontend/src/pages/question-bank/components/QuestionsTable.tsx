@@ -43,17 +43,9 @@ import { setFilter } from "@/modules/question";
 import { useAppDispatch, useAppSelector } from "@/modules/stores";
 import { useEffect, useState, useMemo } from "react";
 import { getQuestions } from "@/api/question";
-import QuestionDialog from "@/components/dialog/QuestionDialog";
+import QuestionDialog,{QuestionDetail} from "@/components/dialog/QuestionDialog";
 
-type Question = {
-  id: string;
-  question: string;
-  type: string;
-  subject: string;
-  difficulty: string;
-  creator: string;
-  grade?: string;
-};
+
 
 export default function QuestionTable() {
   const dispatch = useAppDispatch();
@@ -67,10 +59,10 @@ export default function QuestionTable() {
     : 10;
 
   const [pageInput, setPageInput] = useState<string>(String(currentPage + 1));
-  const [data, setData] = useState<Question[]>([]);
+  const [data, setData] = useState<QuestionDetail[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
+  const [selectedQuestion, setSelectedQuestion] = useState<QuestionDetail| null>(
     null
   );
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
@@ -103,7 +95,7 @@ export default function QuestionTable() {
     fetchData();
   }, [currentPage, currentPageSize, search, subject, difficulty, type, grade]);
 
-  const handleEdit = (question: Question) => {
+  const handleEdit = (question: QuestionDetail) => {
     setSelectedQuestion(question);
     setDialogOpen(true);
   };
@@ -112,7 +104,7 @@ export default function QuestionTable() {
     console.log("收藏", id);
   };
 
-  const columns: ColumnDef<Question>[] = useMemo(
+  const columns: ColumnDef<QuestionDetail>[] = useMemo(
     () => [
       {
         accessorKey: "question",
@@ -187,7 +179,7 @@ export default function QuestionTable() {
                 size="sm"
                 variant="outline"
                 className="font-medium hover:bg-amber-50 hover:text-amber-600 transition-colors"
-                onClick={() => handleDelete(question.id)}
+                onClick={() => question.id && handleDelete(String(question.id))}
               >
                 收藏
               </Button>
@@ -241,7 +233,7 @@ export default function QuestionTable() {
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getRowId: (row) => row.id,
+    getRowId: (row) => row.id?.toString() || "",
   });
 
   useEffect(() => {
@@ -461,7 +453,7 @@ export default function QuestionTable() {
           open={dialogOpen}
           onOpenChange={setDialogOpen}
           data={selectedQuestion}
-          editable={true}
+          mode="preview"
         />
       )}
     </div>

@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect, useMemo } from "react"
+import type React from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,397 +9,605 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { Eye, EyeOff, BookOpen, Tag, BarChart3, User, Pencil } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Textarea } from "@/components/ui/textarea"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Eye,
+  EyeOff,
+  Tag,
+  BookOpen,
+  BarChart3,
+  User,
+  Pencil,
+  Plus,
+  X,
+  Save,
+  FileQuestion,
+  Lock,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export interface QuestionDetail {
-  id?: string | number
-  question: string
-  type: string
-  subject: string
-  difficulty: string
-  grade?: string
-  creator: string
-  options?: string
-  answer?: string
-  analysis?: string
-  [key: string]: any
+  id?: number;
+  question: string;
+  type: string;
+  subject: string;
+  difficulty: string;
+  grade?: string;
+  options?: string;
+  answer?: string;
+  analysis?: string;
+  [key: string]: any;
 }
 
-interface DetailsDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  data: QuestionDetail | null
-  title?: string
-  description?: string
-  footerContent?: React.ReactNode
-  showAnswer?: boolean
-  editable?: boolean
-  onSave?: (updatedData: QuestionDetail) => void
+interface QuestionDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  data?: QuestionDetail | null;
+  mode?: "preview" | "edit" | "create";
+  title?: string;
+  description?: string;
+  onSave?: (data: QuestionDetail) => void;
 }
 
-const QuestionDialog: React.FC<DetailsDialogProps> = ({
+const DEFAULT_DATA: QuestionDetail = {
+  question: "",
+  type: "",
+  subject: "",
+  difficulty: "",
+  creator: "",
+  options: "",
+  answer: "",
+  analysis: "",
+};
+
+const QuestionDialog: React.FC<QuestionDialogProps> = ({
   open,
   onOpenChange,
-  data,
-  title = "题目详情",
-  description = "查看题目完整信息",
-  footerContent,
-  showAnswer: defaultShowAnswer = false,
-  editable = false,
+  data = null,
+  mode = "preview",
+  title,
+  description,
   onSave,
 }) => {
-  const [showAnswer, setShowAnswer] = useState(defaultShowAnswer)
-  const [animateAnswer, setAnimateAnswer] = useState(true)
-  const [mode, setMode] = useState<"view" | "edit">("view")
-  const [formData, setFormData] = useState<QuestionDetail | null>(data)
-  const [editableOptions, setEditableOptions] = useState<[string, string][]>([])
+  // 使用 internalMode 来管理组件内部状态
+  const [internalMode, setInternalMode] = useState<
+    "preview" | "edit" | "create"
+  >(mode);
+  const [formData, setFormData] = useState<QuestionDetail>(
+    data ?? DEFAULT_DATA
+  );
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [editableOptions, setEditableOptions] = useState<[string, string][]>(
+    []
+  );
 
+  // 当外部 mode 或数据变化时更新内部状态
   useEffect(() => {
-    setFormData(data)
-    setMode("view")
+    if (mode === "create") {
+      setFormData(DEFAULT_DATA);
+      setInternalMode("edit"); // 创建模式下使用编辑界面
+    } else {
+      setFormData(data ?? DEFAULT_DATA);
+      setInternalMode(mode);
+    }
 
     if (data?.options) {
       try {
-        const parsed = JSON.parse(data.options)
-        setEditableOptions(Object.entries(parsed))
+        const parsed = JSON.parse(data.options);
+        setEditableOptions(Object.entries(parsed));
       } catch {
-        setEditableOptions([])
+        setEditableOptions([]);
       }
     } else {
-      setEditableOptions([])
+      setEditableOptions([]);
     }
-  }, [data])
 
-  if (!formData) return null
-
-  const isChoice = formData.type?.includes("选择题")
-  const isTrueFalse = formData.type?.includes("判断题")
-  const hasChoices = isChoice || isTrueFalse
-  const hasOptions = hasChoices && formData.options && formData.options.length > 0
-
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty?.toLowerCase()) {
-      case "简单":
-      case "easy":
-        return "text-emerald-600"
-      case "中等":
-      case "medium":
-        return "text-amber-600"
-      case "困难":
-      case "hard":
-        return "text-rose-600"
-      default:
-        return "text-gray-600"
-    }
-  }
+    setShowAnswer(false);
+  }, [data, mode, open]);
 
   const parsedOptions = useMemo(() => {
-    if (!hasOptions) return []
-    if (isTrueFalse) return [["A", "正确"], ["B", "错误"]]
+    const isChoice = formData?.type?.includes("选择题");
+    const isTrueFalse = formData?.type?.includes("判断题");
+    const hasChoices = isChoice || isTrueFalse;
+    const hasOptions =
+      hasChoices && formData?.options && formData.options.length > 0;
+
+    if (!hasOptions) return [];
+    if (isTrueFalse)
+      return [
+        ["A", "正确"],
+        ["B", "错误"],
+      ];
     try {
-      const obj = JSON.parse(formData.options!)
-      return Object.entries(obj)
+      const obj = JSON.parse(formData.options!);
+      return Object.entries(obj);
     } catch {
-      return []
+      return [];
     }
-  }, [formData.options])
+  }, [formData]);
 
   const getNextOptionKey = () => {
-    const existingKeys = editableOptions.map(([k]) => k)
+    const existing = editableOptions.map(([k]) => k);
     for (let i = 0; i < 26; i++) {
-      const char = String.fromCharCode(65 + i)
-      if (!existingKeys.includes(char)) return char
+      const char = String.fromCharCode(65 + i);
+      if (!existing.includes(char)) return char;
     }
-    return null
-  }
+    return null;
+  };
 
-  const handleToggleAnswer = () => {
-    if (showAnswer) {
-      setAnimateAnswer(false)
-      setTimeout(() => setShowAnswer(false), 200)
-    } else {
-      setShowAnswer(true)
-      setTimeout(() => setAnimateAnswer(true), 50)
+  const getDifficultyColor = (level: string) => {
+    switch (level?.toLowerCase()) {
+      case "简单":
+      case "easy":
+        return "bg-emerald-100 text-emerald-700 border-emerald-200";
+      case "中等":
+      case "medium":
+        return "bg-amber-100 text-amber-700 border-amber-200";
+      case "困难":
+      case "hard":
+        return "bg-rose-100 text-rose-700 border-rose-200";
+      default:
+        return "bg-gray-100 text-gray-700 border-gray-200";
     }
-  }
+  };
 
-  const handleInputChange = (key: keyof QuestionDetail, value: string) => {
-    setFormData((prev) => ({ ...prev!, [key]: value }))
-  }
+  const getDifficultyIcon = (level: string) => {
+    switch (level?.toLowerCase()) {
+      case "简单":
+      case "easy":
+        return <BarChart3 className="w-3 h-3 mr-1" />;
+      case "中等":
+      case "medium":
+        return <BarChart3 className="w-3 h-3 mr-1" />;
+      case "困难":
+      case "hard":
+        return <BarChart3 className="w-3 h-3 mr-1" />;
+      default:
+        return <BarChart3 className="w-3 h-3 mr-1" />;
+    }
+  };
+
+  const handleChange = (key: keyof QuestionDetail, value: string) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSave = () => {
+    const optionObj: Record<string, string> = {};
+    editableOptions.forEach(([k, v]) => {
+      if (v.trim()) optionObj[k] = v.trim();
+    });
+    const updated = {
+      ...formData,
+      options: JSON.stringify(optionObj),
+    };
+    onSave?.(updated);
+    setInternalMode("preview");
+  };
+
+  const isEdit = internalMode === "edit" || internalMode === "create";
+  const isPreviewOnly = mode === "preview"; // 外部传入的模式是否为预览模式
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto rounded-lg border border-gray-100 shadow-md p-6">
-        <DialogHeader className="pb-2 space-y-1">
-          <DialogTitle className="text-xl font-medium text-gray-800 flex justify-between items-center">
-            {title}
-            {editable && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setMode((prev) => (prev === "view" ? "edit" : "view"))}
-                className="text-gray-500 hover:text-gray-800"
-              >
-                <Pencil className="w-4 h-4 mr-1" />
-                {mode === "edit" ? "取消编辑" : "编辑"}
-              </Button>
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto rounded-lg p-0">
+        <DialogHeader className="p-6 pb-2 sticky top-0 bg-white z-10 border-b">
+          <div className="flex justify-between items-center">
+            <DialogTitle className="text-xl font-bold flex items-center">
+              <FileQuestion className="w-5 h-5 mr-2 text-primary" />
+              {title ||
+                (internalMode === "create"
+                  ? "新建题目"
+                  : internalMode === "edit"
+                  ? "编辑题目"
+                  : "题目详情")}
+            </DialogTitle>
+            {/* 只有在非预览模式下才显示编辑按钮 */}
+            {!isPreviewOnly && internalMode !== "create" && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full h-8 w-8 p-0"
+                      onClick={() =>
+                        setInternalMode(isEdit ? "preview" : "edit")
+                      }
+                    >
+                      <Pencil className="w-4 h-4" />
+                      <span className="sr-only">
+                        {isEdit ? "取消编辑" : "编辑"}
+                      </span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{isEdit ? "取消编辑" : "编辑题目"}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
-          </DialogTitle>
-          <DialogDescription className="text-gray-500 text-sm">{description}</DialogDescription>
+            {/* 在预览模式下显示锁定图标 */}
+            {isPreviewOnly && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="rounded-full h-8 w-8 p-0 flex items-center justify-center bg-gray-100">
+                      <Lock className="w-4 h-4 text-gray-500" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>预览模式（只读）</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+          <DialogDescription className="text-sm text-muted-foreground">
+            {description ||
+              (isPreviewOnly
+                ? "查看题目信息（只读模式）"
+                : isEdit
+                ? "编辑题目信息"
+                : "查看题目信息")}
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
-          {/* 标签 */}
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="outline" className="bg-white text-gray-700 border-gray-200">
-              {formData.subject || "未分类"}
-            </Badge>
-            <Badge variant="outline" className={cn("bg-white border-gray-200", getDifficultyColor(formData.difficulty))}>
-              {formData.difficulty || "未知难度"}
-            </Badge>
-            <Badge variant="outline" className="bg-white text-gray-700 border-gray-200">
-              {formData.type || "未知类型"}
-            </Badge>
-            {formData.grade && (
-              <Badge variant="outline" className="bg-white text-gray-700 border-gray-200">
-                {formData.grade}
-              </Badge>
-            )}
-          </div>
-
-          {/* 题干 */}
-          <div className="space-y-2">
-            <div className="font-medium text-gray-700 flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-gray-500" />
-              题目内容
+        <div className="p-6 space-y-6">
+          {/* 元数据字段 - 仅在编辑模式下显示 */}
+          {isEdit && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="type">题目类型</Label>
+                <Select
+                  value={formData.type}
+                  onValueChange={(value) => handleChange("type", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="选择类型" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="选择题">选择题</SelectItem>
+                    <SelectItem value="判断题">判断题</SelectItem>
+                    <SelectItem value="填空题">填空题</SelectItem>
+                    <SelectItem value="简答题">简答题</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="subject">学科</Label>
+                <Select
+                  value={formData.subject}
+                  onValueChange={(value) => handleChange("subject", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="选择学科" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="数学">数学</SelectItem>
+                    <SelectItem value="科学">科学</SelectItem>
+                    <SelectItem value="地理">地理</SelectItem>
+                    <SelectItem value="历史">历史</SelectItem>
+                    <SelectItem value="语文">语文</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="difficulty">难度</Label>
+                <Select
+                  value={formData.difficulty}
+                  onValueChange={(value) => handleChange("difficulty", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="选择难度" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="简单">简单</SelectItem>
+                    <SelectItem value="中等">中等</SelectItem>
+                    <SelectItem value="困难">困难</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="grade">年级</Label>
+                <Select
+                  value={formData.grade || ""}
+                  onValueChange={(value) => handleChange("grade", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="选择年级" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="一年级">一年级</SelectItem>
+                    <SelectItem value="二年级">二年级</SelectItem>
+                    <SelectItem value="三年级">三年级</SelectItem>
+                    <SelectItem value="四年级">四年级</SelectItem>
+                    <SelectItem value="五年级">五年级</SelectItem>
+                    <SelectItem value="六年级">六年级</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="creator">创建者</Label>
+                <Input
+                  id="creator"
+                  value={formData.creator}
+                  onChange={(e) => handleChange("creator", e.target.value)}
+                  placeholder="输入创建者姓名"
+                />
+              </div>
             </div>
-            {mode === "edit" ? (
+          )}
+
+          {/* 标签 - 仅在非编辑模式下显示 */}
+          {!isEdit && (
+            <div className="flex flex-wrap gap-2">
+              <Badge
+                variant="outline"
+                className="flex items-center bg-blue-50 text-blue-700 border-blue-200"
+              >
+                <BookOpen className="w-3 h-3 mr-1" />
+                {formData.subject || "未分类"}
+              </Badge>
+              <Badge
+                variant="outline"
+                className={cn(
+                  "flex items-center",
+                  getDifficultyColor(formData.difficulty)
+                )}
+              >
+                {getDifficultyIcon(formData.difficulty)}
+                {formData.difficulty || "未知难度"}
+              </Badge>
+              <Badge
+                variant="outline"
+                className="flex items-center bg-purple-50 text-purple-700 border-purple-200"
+              >
+                <Tag className="w-3 h-3 mr-1" />
+                {formData.type || "未知类型"}
+              </Badge>
+              {formData.grade && (
+                <Badge
+                  variant="outline"
+                  className="flex items-center bg-gray-50 text-gray-700 border-gray-200"
+                >
+                  <User className="w-3 h-3 mr-1" />
+                  {formData.grade}
+                </Badge>
+              )}
+            </div>
+          )}
+
+          {/* 题目内容 */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-700 flex items-center">
+              <span className="bg-primary/10 text-primary px-2 py-0.5 rounded text-xs mr-2">
+                题目
+              </span>
+              题目内容
+            </Label>
+            {isEdit ? (
               <Textarea
                 value={formData.question}
-                onChange={(e) => handleInputChange("question", e.target.value)}
-                className="min-h-[100px]"
+                onChange={(e) => handleChange("question", e.target.value)}
+                className="min-h-[100px] text-base"
+                placeholder="请输入题目内容..."
               />
             ) : (
-              <div className="whitespace-pre-line text-gray-800 leading-relaxed pt-1 pb-2">
-                {formData.question}
-              </div>
-            )}
-
-            {/* 选项 */}
-            {hasChoices && (
-              <div className="space-y-2 mt-4">
-                <Label className="text-sm text-gray-500 block mb-1">选项:</Label>
-                {mode === "edit" ? (
-                  <div className="space-y-2">
-                    {editableOptions.map(([key, value], idx) => (
-                      <div key={key} className="flex items-center gap-2">
-                        <span className="w-6 text-gray-600 font-medium">{key}.</span>
-                        <Input
-                          value={value}
-                          onChange={(e) => {
-                            const newOptions = [...editableOptions]
-                            newOptions[idx][1] = e.target.value
-                            setEditableOptions(newOptions)
-                          }}
-                        />
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="ghost"
-                          onClick={() =>
-                            setEditableOptions(editableOptions.filter((_, i) => i !== idx))
-                          }
-                          className="text-gray-400 hover:text-red-500"
-                        >
-                          ×
-                        </Button>
-                      </div>
-                    ))}
-
-                    {editableOptions.length < 26 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          const nextKey = getNextOptionKey()
-                          if (nextKey) {
-                            setEditableOptions([...editableOptions, [nextKey, ""]])
-                          }
-                        }}
-                      >
-                        添加选项
-                      </Button>
-                    )}
-                  </div>
-                ) : (
-                  parsedOptions.map(([key, value]) => {
-                    const isCorrect = showAnswer && formData.answer?.includes(key)
-                    return (
-                      <div
-                        key={key}
-                        className={cn(
-                          "flex items-center p-3 rounded-md border border-gray-100 transition-all duration-200",
-                          isCorrect ? "bg-gray-50" : "bg-white hover:bg-gray-50",
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            "inline-flex items-center justify-center w-6 h-6 rounded-full mr-3 text-sm",
-                            isCorrect
-                              ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                              : "bg-gray-50 text-gray-600 border border-gray-200",
-                          )}
-                        >
-                          {key}
-                        </span>
-                        <span className="text-gray-700">{String(value)}</span>
-                      </div>
-                    )
-                  })
-                )}
-              </div>
+              <Card>
+                <CardContent className="p-4 text-gray-800 whitespace-pre-line text-base">
+                  {formData.question || "暂无题目内容"}
+                </CardContent>
+              </Card>
             )}
           </div>
 
+          {/* 选项 */}
+          {(parsedOptions.length > 0 || isEdit) && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700 flex items-center">
+                <span className="bg-primary/10 text-primary px-2 py-0.5 rounded text-xs mr-2">
+                  选项
+                </span>
+                选项列表
+              </Label>
+              {isEdit ? (
+                <div className="space-y-2">
+                  {editableOptions.map(([k, v], idx) => (
+                    <div key={k} className="flex items-center gap-2">
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-medium">
+                        {k}
+                      </div>
+                      <Input
+                        value={v}
+                        onChange={(e) => {
+                          const copy = [...editableOptions];
+                          copy[idx][1] = e.target.value;
+                          setEditableOptions(copy);
+                        }}
+                        className="flex-1"
+                        placeholder={`选项 ${k} 内容...`}
+                      />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 rounded-full text-gray-500 hover:text-red-500"
+                        onClick={() =>
+                          setEditableOptions(
+                            editableOptions.filter((_, i) => i !== idx)
+                          )
+                        }
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="mt-2"
+                    onClick={() => {
+                      const next = getNextOptionKey();
+                      if (next)
+                        setEditableOptions([...editableOptions, [next, ""]]);
+                    }}
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    添加选项
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid gap-2">
+                  {parsedOptions.map(([k, v]) => (
+                    <div
+                      key={k}
+                      className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100"
+                    >
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-medium shrink-0">
+                        {k}
+                      </div>
+                      <span className="text-gray-800">{String(v)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* 答案与解析 */}
-          <div className="space-y-4 pt-2">
-            <div className="flex items-center justify-between">
-              <h3 className="font-medium text-gray-700 flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-gray-500" />
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <Label className="text-sm font-medium text-gray-700 flex items-center">
+                <span className="bg-primary/10 text-primary px-2 py-0.5 rounded text-xs mr-2">
+                  答案
+                </span>
                 答案与解析
-              </h3>
-              {mode === "view" && (
+              </Label>
+              {!isEdit && (
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
-                  onClick={handleToggleAnswer}
-                  className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  className="text-xs h-8"
+                  onClick={() => setShowAnswer((s) => !s)}
                 >
                   {showAnswer ? (
-                    <>
-                      <EyeOff className="w-4 h-4 mr-1.5" />
-                      隐藏答案
-                    </>
+                    <EyeOff className="w-3.5 h-3.5 mr-1" />
                   ) : (
-                    <>
-                      <Eye className="w-4 h-4 mr-1.5" />
-                      显示答案
-                    </>
+                    <Eye className="w-3.5 h-3.5 mr-1" />
                   )}
+                  {showAnswer ? "隐藏答案" : "显示答案"}
                 </Button>
               )}
             </div>
 
-            {mode === "edit" ? (
-              <>
-                <div>
-                  <Label className="text-sm text-gray-500 block mb-1.5">参考答案:</Label>
+            {isEdit ? (
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label className="text-xs text-gray-500">参考答案</Label>
                   <Input
                     value={formData.answer || ""}
-                    onChange={(e) => handleInputChange("answer", e.target.value)}
+                    placeholder="请输入参考答案..."
+                    onChange={(e) => handleChange("answer", e.target.value)}
                   />
                 </div>
-                <div>
-                  <Label className="text-sm text-gray-500 block mb-1.5">解析说明:</Label>
+                <div className="space-y-2">
+                  <Label className="text-xs text-gray-500">解析说明</Label>
                   <Textarea
                     value={formData.analysis || ""}
-                    onChange={(e) => handleInputChange("analysis", e.target.value)}
+                    placeholder="请输入解析说明..."
+                    onChange={(e) => handleChange("analysis", e.target.value)}
+                    className="min-h-[100px]"
                   />
                 </div>
-              </>
-            ) : showAnswer ? (
-              <div className={cn("space-y-4 transition-all", animateAnswer ? "opacity-100" : "opacity-0")}>
-                <div>
-                  <Label className="text-sm text-gray-500 block mb-1.5">参考答案:</Label>
-                  <div className="p-3 bg-gray-50 rounded-md border border-gray-100">
-                    <div className="text-gray-800">
-                      {formData.answer || <span className="text-gray-400 italic">暂无答案</span>}
-                    </div>
-                  </div>
-                </div>
-                {formData.analysis && (
-                  <div>
-                    <Label className="text-sm text-gray-500 block mb-1.5">解析说明:</Label>
-                    <div className="p-3 bg-gray-50 rounded-md border border-gray-100">
-                      <div className="text-gray-800 whitespace-pre-line leading-relaxed">{formData.analysis}</div>
-                    </div>
-                  </div>
-                )}
               </div>
+            ) : showAnswer ? (
+              <Card className="overflow-hidden border-primary/20">
+                <CardContent className="p-0">
+                  <div className="p-4  border-b border-primary/10">
+                    <div className="font-medium text-primary">参考答案</div>
+                    <div className="mt-1 text-gray-800">
+                      {formData.answer || "无"}
+                    </div>
+                  </div>
+                  {formData.analysis && (
+                    <div className="p-4">
+                      <div className="font-medium text-gray-700 mb-1">
+                        解析说明
+                      </div>
+                      <div className="text-gray-800 whitespace-pre-line">
+                        {formData.analysis}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             ) : (
-              <div className="h-20 flex flex-col items-center justify-center text-gray-400 border border-dashed border-gray-200 rounded-md bg-gray-50/50">
-                <EyeOff className="w-4 h-4 mb-1.5 opacity-70" />
-                <span className="text-sm">答案已隐藏，点击按钮查看</span>
+              <div className="flex items-center justify-center p-6 border border-dashed rounded-lg bg-gray-50 text-gray-400">
+                <Eye className="w-4 h-4 mr-2 opacity-70" />
+                <span>点击上方按钮显示答案和解析</span>
               </div>
             )}
           </div>
         </div>
 
-        <Separator className="bg-gray-100 my-1" />
-
-        <DialogFooter className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2">
-          <div className="text-xs text-gray-400 flex items-center gap-3">
-            <span className="flex items-center gap-1">
-              <Tag className="w-3 h-3" />
-              题目ID: {formData.id || "未分配"}
+        <DialogFooter className="p-6 pt-2 border-t bg-gray-50 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="text-xs text-gray-500 flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
+            <span className="flex items-center">
+              <span className="text-gray-400 mr-1">ID:</span>
+              {formData.id || "未分配"}
             </span>
-            <span className="flex items-center gap-1">
-              <User className="w-3 h-3" />
-              创建者: {formData.creator || "未知"}
+            <span className="flex items-center">
+              <User className="w-3 h-3 mr-1 text-gray-400" />
+              {formData.creator || "未知"}
             </span>
           </div>
-          {mode === "edit" ? (
-            <div className="flex gap-2">
-              <Button
-                onClick={() => {
-                  const optionsObj: Record<string, string> = {}
-                  editableOptions.forEach(([k, v]) => {
-                    if (v.trim()) optionsObj[k] = v.trim()
-                  })
-                  const updatedForm = {
-                    ...formData,
-                    options: JSON.stringify(optionsObj),
-                  }
-                  onSave?.(updatedForm)
-                  setMode("view")
-                }}
-              >
+
+          {isEdit ? (
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button onClick={handleSave} className="flex-1 sm:flex-none">
+                <Save className="w-4 h-4 mr-2" />
                 保存
               </Button>
               <Button
                 variant="outline"
                 onClick={() => {
-                  setFormData(data)
-                  setMode("view")
+                  setFormData(data ?? DEFAULT_DATA);
+                  setInternalMode("preview");
                 }}
+                className="flex-1 sm:flex-none"
               >
                 取消
               </Button>
             </div>
           ) : (
-            footerContent || (
-              <Button
-                onClick={() => onOpenChange(false)}
-                variant="outline"
-                className="border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-              >
-                关闭
-              </Button>
-            )
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              关闭
+            </Button>
           )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default QuestionDialog
+export default QuestionDialog;
