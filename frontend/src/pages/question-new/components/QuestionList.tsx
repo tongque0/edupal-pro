@@ -13,23 +13,23 @@ import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2 } from "lucide-react";
 import { useAppSelector } from "@/modules/stores";
 import { getQuestions } from "@/api/question";
-import QuestionDialog,{QuestionDetail} from "@/components/dialog/QuestionDialog";
-
-
+import QuestionDialog, {
+  QuestionDetail,
+} from "@/components/dialog/QuestionDialog";
 
 export default function QuestionList() {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedQuestion, setSelectedQuestion] = useState<QuestionDetail | null>(
-    null
-  );
-
+  const [selectedQuestion, setSelectedQuestion] =
+    useState<QuestionDetail | null>(null);
   const reduxTrace = useAppSelector((state) => state.question.trace);
-  const [isPolling, setIsPolling] = useState(false);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const [questions, setQuestions] = useState<QuestionDetail[]>([]);
 
   // 获取题目追踪数据
   const fetchTraceData = async () => {
+    console.log("reduxTrace.sourceId", reduxTrace);
+    if (!reduxTrace.sourceId) return;
+    if (reduxTrace.isEditing) return;
     try {
       const res = await getQuestions({ source_id: reduxTrace.sourceId });
       if (res.data && res.data.length > 0) {
@@ -50,43 +50,24 @@ export default function QuestionList() {
       }
     } catch (error) {
       console.error("获取题目追踪失败:", error);
-      stopPolling();
     }
   };
 
-
-  // 开始轮询
-  const startPolling = () => {
-    if (!isPolling && reduxTrace.sourceId) {
-      setIsPolling(true);
-      fetchTraceData();
-      pollingRef.current = setInterval(() => {
-        fetchTraceData();
-      }, 2000);
-    }
-  };
-
-  // 停止轮询
-  const stopPolling = () => {
-    if (pollingRef.current) {
-      clearInterval(pollingRef.current);
-      pollingRef.current = null;
-    }
-    setIsPolling(false);
-  };
-
-  // 监听 sourceId 变化
   useEffect(() => {
-    if (reduxTrace.sourceId) {
-      startPolling();
-    }
+    fetchTraceData(); // 初次加载
+    pollingRef.current = setInterval(() => {
+      fetchTraceData();
+    }, 2000);
+
     return () => {
-      stopPolling();
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
     };
   }, [reduxTrace.sourceId]);
 
   const handleEdit = (q: QuestionDetail) => {
-    // 手动创建时弹出空白对话框
     setSelectedQuestion({
       id: q.id,
       question: q.question,

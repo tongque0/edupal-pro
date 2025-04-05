@@ -76,3 +76,44 @@ export const getTrace = async (source_id: string) => {
     throw error;
   }
 };
+
+export const newQuestion = async (params: {
+  content: string; // 题目内容
+  type: string; // 题型，如 "单选题"
+  subject: string;
+  grade: string; // 年级，如 "八年级"
+  difficulty: string; // 难度，如 "简单"
+  options?: string; // 选项列表，如 ["A", "B", "C", "D"]
+  answer?: string; // 答案
+  explanation?: string; // 解析
+  source_id?: string; // 来源批次 ID（可选）
+}) => {
+  try {
+    const res = await request.post("/question/new", params);
+    return res.data; // 新创建的题目
+  } catch (error) {
+    console.error("创建题目失败:", error);
+    throw error;
+  }
+};
+
+export const updateQuestion = async (params: {
+  id: number; // 题目 ID
+  content?: string; // 题目内容
+  type?: string; // 题型，如 "单选题"
+  subject?: string;
+  grade?: string; // 年级，如 "八年级"
+  difficulty?: string; // 难度，如 "简单"
+  options?: string; // 选项列表，如 ["A", "B", "C", "D"]
+  answer?: string; // 答案
+  explanation?: string; // 解析
+  source_id?: string; // 来源批次 ID（可选）
+}) => {
+  try {
+    const res = await request.put(`/question/update/${params.id}`, params);
+    return res.data; // 更新后的题目
+  } catch (error) {
+    console.error("更新题目失败:", error);
+    throw error;
+  }
+}

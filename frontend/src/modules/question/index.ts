@@ -14,7 +14,7 @@ export interface QuestionFilters {
 }
 
 export interface QuestionTrace {
-  isGening: boolean; // 是否正在生成题目
+  isEditing: boolean; // 是否正在编辑题目
   sourceId: string; // 生成的批次 ID
 }
 
@@ -36,7 +36,7 @@ const initialState: QuestionState = {
     pageSize: "10", // 默认每页10条
   },
   trace: {
-    isGening: false, // 是否正在生成题目
+    isEditing: false, // 是否正在编辑题目
     sourceId: "", // 生成的批次 ID
   },
 };
@@ -55,14 +55,17 @@ const questionSlice = createSlice({
     resetFilters(state) {
       state.filters = initialState.filters;
     },
-    setTrace(state, action: PayloadAction<QuestionTrace>) {
-      state.trace = action.payload;
+    setTraceEditing(state, action: PayloadAction<boolean>) {
+      state.trace.isEditing = action.payload;
     },
-
+    setTraceSourceId(state, action: PayloadAction<string>) {
+      state.trace.sourceId = action.payload;
+    },
   },
 });
 
-export const { setFilter, resetFilters,setTrace } = questionSlice.actions;
+export const { setFilter, resetFilters, setTraceEditing, setTraceSourceId } =
+  questionSlice.actions;
 
 export const selectQuestionState = (state: RootState) => state.question;
 

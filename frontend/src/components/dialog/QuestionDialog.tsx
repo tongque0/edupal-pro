@@ -44,17 +44,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { useAppSelector, useAppDispatch } from "@/modules/stores";
+import { setTraceEditing, setTraceSourceId } from "@/modules/question";
+import { newQuestion, updateQuestion } from "@/api/question";
+import { toast } from "sonner";
 export interface QuestionDetail {
   id?: number;
   question: string;
   type: string;
   subject: string;
   difficulty: string;
-  grade?: string;
+  grade: string;
   options?: string;
   answer?: string;
   analysis?: string;
+  source_id?: string;
   [key: string]: any;
 }
 
@@ -74,6 +78,7 @@ const DEFAULT_DATA: QuestionDetail = {
   subject: "",
   difficulty: "",
   creator: "",
+  grade: "",
   options: "",
   answer: "",
   analysis: "",
@@ -86,8 +91,10 @@ const QuestionDialog: React.FC<QuestionDialogProps> = ({
   mode = "preview",
   title,
   description,
-  onSave,
 }) => {
+  const dispatch = useAppDispatch();
+  const reduxTrace = useAppSelector((state) => state.question.trace);
+
   // 使用 internalMode 来管理组件内部状态
   const [internalMode, setInternalMode] = useState<
     "preview" | "edit" | "create"
@@ -99,12 +106,20 @@ const QuestionDialog: React.FC<QuestionDialogProps> = ({
   const [editableOptions, setEditableOptions] = useState<[string, string][]>(
     []
   );
+  useEffect(() => {
+    if (open && (mode === "edit" || mode === "create")) {
+      dispatch(setTraceEditing(true));
+    } else if (!open) {
+      dispatch(setTraceEditing(false));
+    }
+    console.log("对话框打开状态:", open, mode);
+    console.log("reduxTrace:", reduxTrace);
+  }, [open, mode]);
 
-  // 当外部 mode 或数据变化时更新内部状态
   useEffect(() => {
     if (mode === "create") {
       setFormData(DEFAULT_DATA);
-      setInternalMode("edit"); // 创建模式下使用编辑界面
+      setInternalMode("create"); // 创建模式下使用编辑界面
     } else {
       setFormData(data ?? DEFAULT_DATA);
       setInternalMode(mode);
@@ -190,17 +205,53 @@ const QuestionDialog: React.FC<QuestionDialogProps> = ({
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSave = () => {
-    const optionObj: Record<string, string> = {};
-    editableOptions.forEach(([k, v]) => {
-      if (v.trim()) optionObj[k] = v.trim();
-    });
-    const updated = {
-      ...formData,
+  const handleSave = async () => {
+    const optionObj = Object.fromEntries(
+      editableOptions.filter(([_, v]) => v.trim())
+    );
+
+    const payload = {
+      content: formData.question,
+      type: formData.type,
+      subject: formData.subject,
+      grade: formData.grade,
+      difficulty: formData.difficulty,
       options: JSON.stringify(optionObj),
+      answer: formData.answer,
+      explanation: formData.analysis,
     };
-    onSave?.(updated);
-    setInternalMode("preview");
+
+    try {
+      let result;
+
+      if (internalMode === "create") {
+        result = await newQuestion({
+          ...payload,
+          source_id: reduxTrace.sourceId,
+        });
+        console.log("创建结果:", result);
+      } else {
+        if (!reduxTrace.sourceId) {
+          toast.error("题目 ID 不存在，更新失败");
+          return;
+        }
+        result = await updateQuestion({
+          id: Number(reduxTrace.sourceId),
+          ...payload,
+        });
+        console.log("更新结果:", result);
+      }
+
+      if (result?.source_id) {
+        dispatch(setTraceSourceId(result.source_id));
+      }
+
+      toast.success("保存成功");
+      setInternalMode("preview");
+    } catch (error) {
+      console.error("保存失败:", error);
+      toast.error("保存失败，请重试");
+    }
   };
 
   const isEdit = internalMode === "edit" || internalMode === "create";

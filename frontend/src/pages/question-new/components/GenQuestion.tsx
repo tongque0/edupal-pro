@@ -11,10 +11,9 @@ import { Label } from "@/components/ui/label";
 import SelectInput from "@/components/ui/my-selectinput";
 import QuestionTypeControl from "@/components/ui/my-questiontype";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/modules/stores";
-import { setTrace } from "@/modules/question";
+import { setTraceSourceId } from "@/modules/question";
 import { genQuestions } from "@/api/question";
 import { toast } from "sonner";
 export default function GenQuestion() {
@@ -95,8 +94,7 @@ export default function GenQuestion() {
       toast.error("请选择学科、年级、难度和考察知识点！");
       return;
     }
-    dispatch(setTrace({ isGening: true, sourceId: "" })); // 设置生成状态为 true
-    // 构造题型数组
+
     const questionTypesArray = Object.entries(aiOptions.questionTypes)
       .filter(([_, { enabled }]) => enabled) // 过滤出启用的题型
       .flatMap(([key, { count }]) => {
@@ -131,15 +129,14 @@ export default function GenQuestion() {
       params.difficulties = randomDifficulties; // 使用随机生成的难度数组
     }
 
-    const res = await genQuestions({...params, source_id: reduxTrace.sourceId});
+    const res = await genQuestions({
+      ...params,
+      source_id: reduxTrace.sourceId,
+    });
     if (res.source_id) {
-      dispatch(setTrace({ isGening: false, sourceId: res.source_id }));
-    } else {
-      toast.error("生成失败，请稍后再试！");
-      dispatch(setTrace({ isGening: false, sourceId: "" })); // 设置生成状态为 false
-      return;
+      dispatch(setTraceSourceId(res.source_id)); // 设置批次 ID
+      toast.success("生成任务创建成功！请稍后。");
     }
-    toast.success("生成任务创建成功！请稍后。");
   };
 
   return (
@@ -241,19 +238,8 @@ export default function GenQuestion() {
         </div>
       </CardContent>
       <CardFooter>
-        <Button
-          className="w-full"
-          onClick={handleGenerate}
-          disabled={reduxTrace.isGening}
-        >
-          {reduxTrace.isGening ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              正在生成...
-            </>
-          ) : (
-            "生成问题"
-          )}
+        <Button className="w-full" onClick={handleGenerate}>
+          生成问题
         </Button>
       </CardFooter>
     </Card>

@@ -8,7 +8,6 @@ import QuestionList from "@/pages/question-new/components/QuestionList";
 import QuestionDialog, {
   QuestionDetail,
 } from "@/components/dialog/QuestionDialog";
-
 export default function GeneratePage() {
   const [tabValue, setTabValue] = useState("ai");
   const [dialogOpen, setDialogOpen] = useState(false);
