@@ -81,7 +81,7 @@ const DEFAULT_DATA: QuestionDetail = {
   grade: "",
   options: "",
   answer: "",
-  analysis: "",
+  explanation: "",
 };
 
 const QuestionDialog: React.FC<QuestionDialogProps> = ({
@@ -113,6 +113,7 @@ const QuestionDialog: React.FC<QuestionDialogProps> = ({
       if (mode === "edit" || mode === "create") {
         dispatch(setTraceEditing(true));
       }
+      console.log(data, "data");
     } else {
       // 只在对话框关闭时重置
       dispatch(setTraceEditing(false));
@@ -221,7 +222,7 @@ const QuestionDialog: React.FC<QuestionDialogProps> = ({
       difficulty: formData.difficulty,
       options: JSON.stringify(optionObj),
       answer: formData.answer,
-      explanation: formData.analysis,
+      explanation: formData.explanation,
       source_id: reduxTrace.sourceId,
     };
 
@@ -381,7 +382,7 @@ const QuestionDialog: React.FC<QuestionDialogProps> = ({
               <div className="space-y-2">
                 <Label htmlFor="grade">年级</Label>
                 <Select
-                  value={formData.grade || ""}
+                  value={formData.grade || "其他"}
                   onValueChange={(value) => handleChange("grade", value)}
                 >
                   <SelectTrigger>
@@ -394,17 +395,18 @@ const QuestionDialog: React.FC<QuestionDialogProps> = ({
                     <SelectItem value="四年级">四年级</SelectItem>
                     <SelectItem value="五年级">五年级</SelectItem>
                     <SelectItem value="六年级">六年级</SelectItem>
+                    <SelectItem value="初一">初一</SelectItem>
+                    <SelectItem value="初二">初二</SelectItem>
+                    <SelectItem value="初三">初三</SelectItem>
+                    <SelectItem value="高一">高一</SelectItem>
+                    <SelectItem value="高二">高二</SelectItem>
+                    <SelectItem value="高三">高三</SelectItem>
+                    <SelectItem value="大学">大学</SelectItem>
+                    <SelectItem value="研究生">研究生</SelectItem>
+                    <SelectItem value="博士">博士</SelectItem>
+                    <SelectItem value="其他">其他</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="creator">创建者</Label>
-                <Input
-                  id="creator"
-                  value={formData.creator}
-                  onChange={(e) => handleChange("creator", e.target.value)}
-                  placeholder="输入创建者姓名"
-                />
               </div>
             </div>
           )}
@@ -585,9 +587,11 @@ const QuestionDialog: React.FC<QuestionDialogProps> = ({
                 <div className="space-y-2">
                   <Label className="text-xs text-gray-500">解析说明</Label>
                   <Textarea
-                    value={formData.analysis || ""}
+                    value={formData.explanation || ""}
                     placeholder="请输入解析说明..."
-                    onChange={(e) => handleChange("analysis", e.target.value)}
+                    onChange={(e) =>
+                      handleChange("explanation", e.target.value)
+                    }
                     className="min-h-[100px]"
                   />
                 </div>
@@ -628,10 +632,6 @@ const QuestionDialog: React.FC<QuestionDialogProps> = ({
               <span className="text-gray-400 mr-1">ID:</span>
               {formData.id || "未分配"}
             </span>
-            <span className="flex items-center">
-              <User className="w-3 h-3 mr-1 text-gray-400" />
-              {formData.creator || "未知"}
-            </span>
           </div>
 
           {isEdit ? (
@@ -639,16 +639,6 @@ const QuestionDialog: React.FC<QuestionDialogProps> = ({
               <Button onClick={handleSave} className="flex-1 sm:flex-none">
                 <Save className="w-4 h-4 mr-2" />
                 保存
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setFormData(data ?? DEFAULT_DATA);
-                  setInternalMode("preview");
-                }}
-                className="flex-1 sm:flex-none"
-              >
-                取消
               </Button>
             </div>
           ) : (

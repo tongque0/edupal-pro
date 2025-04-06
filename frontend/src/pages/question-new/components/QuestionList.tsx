@@ -41,6 +41,7 @@ export default function QuestionList() {
           grade: item.grade,
           options: item.options,
           answer: item.answer,
+          explanation: item.explanation,
         }));
         setQuestions(tempquestions);
       } else {
@@ -91,6 +92,7 @@ export default function QuestionList() {
       difficulty: q.difficulty,
       answer: q.answer,
       creator: q.creator,
+      explanation: q.explanation,
     });
     setDialogOpen(true);
   };
@@ -151,15 +153,7 @@ export default function QuestionList() {
       <QuestionDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        data={
-          selectedQuestion
-            ? {
-                ...selectedQuestion,
-                subject: selectedQuestion.subject || "",
-                difficulty: selectedQuestion.difficulty || "",
-              }
-            : null
-        }
+        data={selectedQuestion}
         mode="edit"
       />
     </Card>
