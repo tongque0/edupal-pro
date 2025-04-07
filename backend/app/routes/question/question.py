@@ -9,7 +9,7 @@ from app.routes.question.question_schemas import QuestionFilter,  QuestionCRUD
 from app.database import get_db
 router = APIRouter()
 
-
+# 题目生成相关
 @router.post("/gen", summary="题目生成")
 async def gen_question(
     request: Request,
@@ -53,7 +53,6 @@ async def gen_question(
         "source_id": source_id,
     }
 
-
 @router.get("/get", summary="获取题目")
 def get_questions(filters: QuestionFilter = Depends(), db: Session = Depends(get_db)):
     stmt = select(Question).where(Question.is_deleted == False)
@@ -88,7 +87,6 @@ def get_questions(filters: QuestionFilter = Depends(), db: Session = Depends(get
         "data": data,
     }
 
-
 @router.post("/new", summary="创建题目")
 def create_question(
     request: Request,
@@ -120,7 +118,6 @@ def create_question(
         "source_id": orm_question.source_id,
         "question": orm_question,
     }
-
 
 @router.put("/update/{question_id}", summary="更新题目")
 def update_question(
@@ -210,7 +207,6 @@ def delete_questions(
         "deleted_count": len(questions),
     }
 
-
 @router.get("/trace/{source_id}", summary="获取指定批次追踪记录")
 def get_question_trace(source_id: str, db: Session = Depends(get_db)):
     stmt = select(QuestionTrace).where(
@@ -219,3 +215,30 @@ def get_question_trace(source_id: str, db: Session = Depends(get_db)):
     )
     result = db.execute(stmt)
     return result.scalars().all()
+
+# 题目收藏相关
+# @router.post("/collect", summary="收藏题目")
+# def collect_question(
+#     request: Request,
+#     question_id: int,
+#     db: Session = Depends(get_db),
+# ):
+#     user_id = request.state.user.get("id")
+#     stmt = select(Question).where(
+#         Question.is_deleted == False,
+#         Question.id == question_id,
+#     )
+#     result = db.execute(stmt)
+#     question = result.scalar_one_or_none()
+
+#     if not question:
+#         raise HTTPException(status_code=404, detail="题目不存在或无权限收藏")
+
+#     # 收藏逻辑
+#     question.is_collected = True
+#     db.commit()
+
+#     return {
+#         "message": "题目收藏成功",
+#         "question_id": question_id,
+#     }

@@ -605,13 +605,13 @@ const QuestionDialog: React.FC<QuestionDialogProps> = ({
                       {formData.answer || "无"}
                     </div>
                   </div>
-                  {formData.analysis && (
+                  {formData.explanation && (
                     <div className="p-4">
                       <div className="font-medium text-gray-700 mb-1">
                         解析说明
                       </div>
                       <div className="text-gray-800 whitespace-pre-line">
-                        {formData.analysis}
+                        {formData.explanation}
                       </div>
                     </div>
                   )}
