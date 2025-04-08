@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/select";
 
 import { setFilter, resetFilters } from "@/modules/question";
+import { addQuestions } from "@/modules/testpaper";
 import { useAppDispatch, useAppSelector } from "@/modules/stores";
 import { useEffect, useState, useMemo } from "react";
 import { getQuestions } from "@/api/question";
@@ -48,13 +49,13 @@ import {
   difficultyOptions,
   gradeOptions,
 } from "@/types/Options";
+import { toast } from "sonner";
 
 export default function QuestionTable() {
   const dispatch = useAppDispatch();
   const reduxFilters = useAppSelector((state) => state.question.filters);
   const { search, page, pageSize, subject, type, difficulty, grade } =
     reduxFilters;
-
   const currentPage = page ? Number.parseInt(page as string, 10) - 1 : 0;
   const currentPageSize = pageSize
     ? Number.parseInt(pageSize as string, 10)
@@ -101,8 +102,13 @@ export default function QuestionTable() {
     setDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    console.log("收藏", id);
+  const handleSelect = (question: QuestionDetail) => {
+    if (!question) return;
+    if (!question.id) {
+      toast.error("题目 ID 不存在！");
+      return;
+    }
+    dispatch(addQuestions(question));
   };
 
   const columns: ColumnDef<QuestionDetail>[] = useMemo(
@@ -180,7 +186,7 @@ export default function QuestionTable() {
                 size="sm"
                 variant="outline"
                 className="font-medium hover:bg-amber-50 hover:text-amber-600 transition-colors"
-                onClick={() => question.id && handleDelete(String(question.id))}
+                onClick={() => handleSelect(question)}
               >
                 选择
               </Button>
@@ -315,27 +321,6 @@ export default function QuestionTable() {
           </Select>
 
           <Select
-            value={difficulty}
-            onValueChange={(val) =>
-              dispatch(setFilter({ key: "difficulty", value: val }))
-            }
-          >
-            <SelectTrigger className="w-[80px]">
-              <SelectValue placeholder="选择难度" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>难度</SelectLabel>
-                {difficultyOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-
-          <Select
             value={type}
             onValueChange={(val) =>
               dispatch(setFilter({ key: "type", value: val }))
@@ -348,6 +333,27 @@ export default function QuestionTable() {
               <SelectGroup>
                 <SelectLabel>题型</SelectLabel>
                 {typeOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={difficulty}
+            onValueChange={(val) =>
+              dispatch(setFilter({ key: "difficulty", value: val }))
+            }
+          >
+            <SelectTrigger className="w-[80px]">
+              <SelectValue placeholder="选择难度" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>难度</SelectLabel>
+                {difficultyOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>

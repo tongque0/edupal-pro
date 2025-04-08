@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "@/modules/stores";
 import { QuestionDetail } from "@/components/dialog/QuestionDialog";
+import { toast } from "sonner";
 
 export interface TestPaperState {
   title: string;
@@ -9,8 +10,7 @@ export interface TestPaperState {
   grade?: string;
   description: string;
   instructions?: string;
-  questionlist?: number[];
-  questions?: QuestionDetail[];
+  questions: QuestionDetail[]; // 题目详情数组
 }
 
 const initialState: TestPaperState = {
@@ -20,7 +20,6 @@ const initialState: TestPaperState = {
   grade: "all",
   description: "",
   instructions: "",
-  questionlist: [],
   questions: [],
 };
 
@@ -52,16 +51,17 @@ const testpaperSlice = createSlice({
     setInstructions: (state, action: PayloadAction<string>) => {
       state.instructions = action.payload;
     },
-    // 更新题目列表（题目ID）
-    setQuestionList: (state, action: PayloadAction<number[]>) => {
-      state.questionlist = action.payload;
-    },
-    addQuestionList: (state, action: PayloadAction<number>) => {
-      state.questionlist = [...(state.questionlist || []), action.payload];
-    },
     // 更新题目详细信息
     setQuestions: (state, action: PayloadAction<QuestionDetail[]>) => {
       state.questions = action.payload;
+    },
+    addQuestions: (state, action: PayloadAction<QuestionDetail>) => {
+      const newQuestion = action.payload;
+      if (!state.questions.some((q) => q.id === newQuestion.id)) {
+        state.questions.push(newQuestion);
+      }else{
+        toast.info("题目已添加，请勿重复添加！");
+      }
     },
     // 重置所有状态为初始值
     resetTestPaper: (state) => {
@@ -77,8 +77,7 @@ export const {
   setGrade,
   setDescription,
   setInstructions,
-  setQuestionList,
-  addQuestionList,
+  addQuestions,
   setQuestions,
   resetTestPaper,
 } = testpaperSlice.actions;

@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useAppSelector, useAppDispatch } from "@/modules/stores";
+import type { RootState } from "@/modules/stores";
 import {
   Dialog,
   DialogContent,
@@ -29,59 +31,29 @@ interface TestPaperProps {
   data?: TestPaperDetails | null;
 }
 
-// 模拟数据
-const testPaperData = {
-  title: "期中考试",
-  description: "本次考试包括选择题、判断题、简答题和论述题。",
-  instructions: "请根据题目要求作答，答题时间为90分钟。",
-};
-
-export function TestpaperDialog({
-  id,
-  open,
-  onOpenChange,
-  data,
-}: TestPaperProps) {
-  const [testPaper, setTestPaper] = useState<TestPaperDetails | null>(null);
-  const [selectedQuestions, setSelectedQuestions] = useState<QuestionDetail[]>(
-    []
+export function TestpaperDialog({ id, open, onOpenChange }: TestPaperProps) {
+  const { questions, title, description, instructions } = useAppSelector(
+    (state: RootState) => state.testpaper
   );
-
-  // 根据传入的 data 或 id 拉取数据
-  useEffect(() => {
-    if (data) {
-      // 使用传入的 data
-      setTestPaper(data);
-      setSelectedQuestions(data.questions || []);
-    } else {
-      // 如果没有传入数据，通过 id 拉取数据
-      if (id) {
-        setTestPaper(testPaperData);
-        // setSelectedQuestions(questionsData);
-      }
-    }
-  }, [data]);
 
   return (
     <div>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-4xl min-w-[900px] max-h-[800px]  overflow-auto">
           <DialogHeader>
-            <DialogTitle>{testPaper?.title || "未命名试卷"}</DialogTitle>
-            <DialogDescription>
-              {testPaper?.description || "暂无描述。"}
-            </DialogDescription>
+            <DialogTitle>{title || "未命名试卷"}</DialogTitle>
+            <DialogDescription>{description || "暂无描述。"}</DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-6">
-            {testPaper?.instructions && (
+            {instructions && (
               <div className="bg-muted p-4 rounded-md">
                 <h3 className="font-medium mb-2">说明：</h3>
-                <p>{testPaper.instructions}</p>
+                <p>{instructions}</p>
               </div>
             )}
 
             <div className="space-y-6">
-              {selectedQuestions.map((q, index) => (
+              {questions.map((q, index) => (
                 <div key={q.id} className="border-b pb-4 last:border-0">
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="font-medium break-words">

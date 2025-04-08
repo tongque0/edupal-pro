@@ -6,6 +6,7 @@ import { Eye, Save } from "lucide-react";
 import { TestpaperDialog } from "@/components/dialog/TestpaperDialog";
 import TestPaperInfo from "@/pages/testpaper-new/components/testpaperinfo";
 import QuestionBank from "@/pages/testpaper-new/components/questionbank";
+import TestQuestion from "@/pages/testpaper-new/components/testquestion";
 export default function CreateTestPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -42,8 +43,7 @@ export default function CreateTestPage() {
               <QuestionBank />
             </div>
           </div>
-
-          {/* 右边布局 - 已选题目列表 */}
+            <TestQuestion />
         </div>
       </main>
 
