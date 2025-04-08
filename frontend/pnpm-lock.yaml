@@ -111,6 +111,9 @@ importers:
       '@types/react':
         specifier: ^19.0.10
         version: 19.0.12
+      '@types/react-beautiful-dnd':
+        specifier: ^13.1.8
+        version: 13.1.8
       '@types/react-dom':
         specifier: ^19.0.4
         version: 19.0.4(@types/react@19.0.12)
@@ -1163,6 +1166,9 @@ packages:
 
   '@types/node@22.13.14':
     resolution: {integrity: sha512-Zs/Ollc1SJ8nKUAgc7ivOEdIBM8JAKgrqqUYi2J997JuKO7/tpQC+WCetQ1sypiKCQWHdvdg9wBNpUPEWZae7w==}
+
+  '@types/react-beautiful-dnd@13.1.8':
+    resolution: {integrity: sha512-E3TyFsro9pQuK4r8S/OL6G99eq7p8v29sX0PM7oT8Z+PJfZvSQTx4zTQbUJ+QZXioAF0e7TGBEcA1XhYhCweyQ==}
 
   '@types/react-dom@19.0.4':
     resolution: {integrity: sha512-4fSQ8vWFkg+TGhePfUzVmat3eC14TXYSsiiDSLI0dVLsrm9gZFABjPy/Qu6TKgl1tq1Bu1yDsuQgY3A3DOjCcg==}
@@ -3077,6 +3083,10 @@ snapshots:
   '@types/node@22.13.14':
     dependencies:
       undici-types: 6.20.0
+
+  '@types/react-beautiful-dnd@13.1.8':
+    dependencies:
+      '@types/react': 19.0.12
 
   '@types/react-dom@19.0.4(@types/react@19.0.12)':
     dependencies:
