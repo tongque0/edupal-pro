@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from "@/modules/stores";
 import { RootState } from "@/modules/stores";
 import {
   setTitle,
+  setGrade,
   setSubject,
   setTimeLimit,
   setDescription,
@@ -20,10 +21,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { subjectOptions, gradeOptions } from "@/types/Options";
 export default function TestPaperInfo() {
   const dispatch = useAppDispatch();
-  const { title, subject, timeLimit, description, instructions } =
+  const { title, subject, timeLimit, description, instructions, grade } =
     useAppSelector((state: RootState) => state.testpaper);
 
   // 控制显示状态
@@ -34,6 +35,9 @@ export default function TestPaperInfo() {
     dispatch(setTitle(e.target.value));
   };
 
+  const handleGradeChange = (value: string) => {
+    dispatch(setGrade(value));
+  };
   const handleSubjectChange = (value: string) => {
     dispatch(setSubject(value));
   };
@@ -72,6 +76,42 @@ export default function TestPaperInfo() {
 
       {infoExpanded ? (
         <div className="space-y-2 mt-2">
+          {/* 科目与年级 */}
+          <div className="grid grid-cols-3 gap-2 items-center">
+            {/* 科目 */}
+            <div className="flex items-center gap-0">
+              <Select value={subject} onValueChange={handleSubjectChange}>
+                <SelectTrigger id="subject" className="h-8 w-32">
+                  <SelectValue placeholder="选择科目" />
+                </SelectTrigger>
+                <SelectContent>
+                  {subjectOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 年级 */}
+            <div className="flex items-center gap-0">
+
+              <Select value={grade} onValueChange={handleGradeChange}>
+                <SelectTrigger id="grade" className="h-8 w-32">
+                  <SelectValue placeholder="选择年级" />
+                </SelectTrigger>
+                <SelectContent>
+                  {gradeOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           {/* 试卷标题 */}
           <div className="grid grid-cols-3 gap-2 items-center">
             <Label htmlFor="title" className="text-sm">
@@ -85,25 +125,6 @@ export default function TestPaperInfo() {
               onChange={handleTitleChange}
               className="h-8 col-span-2"
             />
-          </div>
-
-          {/* 科目 */}
-          <div className="grid grid-cols-3 gap-2 items-center">
-            <Label htmlFor="subject" className="text-sm">
-              科目:
-            </Label>
-            <Select value={subject} onValueChange={handleSubjectChange}>
-              <SelectTrigger id="subject" className="h-8 col-span-2">
-                <SelectValue placeholder="选择科目" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="mathematics">数学</SelectItem>
-                <SelectItem value="science">科学</SelectItem>
-                <SelectItem value="history">历史</SelectItem>
-                <SelectItem value="geography">地理</SelectItem>
-                <SelectItem value="literature">文学</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
 
           {/* 时间限制 */}

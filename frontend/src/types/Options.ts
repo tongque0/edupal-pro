@@ -1,5 +1,5 @@
 export const difficultyOptions = [
-  { label: "所有", value: "all" },
+  { label: "难度", value: "all" },
   { value: "简单", label: "简单" },
   { value: "中等", label: "中等" },
   { value: "困难", label: "困难" },
@@ -7,14 +7,14 @@ export const difficultyOptions = [
 ];
 
 export const typeOptions = [
-  { label: "所有", value: "all" },
+  { label: "题型", value: "all" },
   { value: "选择题", label: "选择题" },
   { value: "判断题", label: "判断题" },
   { value: "计算题", label: "计算题" },
   { value: "填空题", label: "填空题" },
 ];
 export const subjectOptions = [
-  { label: "所有", value: "all" },
+  { label: "学科", value: "all" },
   { value: "数学", label: "数学" },
   { value: "英语", label: "英语" },
   { value: "物理", label: "物理" },
@@ -30,7 +30,7 @@ export const subjectOptions = [
   { value: "其他", label: "其他" },
 ];
 export const gradeOptions = [
-  { label: "所有", value: "all" },
+  { label: "年级", value: "all" },
   { value: "一年级", label: "一年级" },
   { value: "二年级", label: "二年级" },
   { value: "三年级", label: "三年级" },
