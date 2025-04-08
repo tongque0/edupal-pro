@@ -24,11 +24,13 @@ import { TypedUseSelectorHook, useSelector, useDispatch } from 'react-redux';
 import authReducer from '@/modules/auth';
 import globalReducer from '@/modules/global';
 import questionReducer from '@/modules/question';
+import testpaperReducer from '@/modules/testpaper';
 // 组合多个 reducer，这里只有一个 global reducer
 const reducer = combineReducers({
   auth:authReducer,
   global: globalReducer,
   question: questionReducer,
+  testpaper: testpaperReducer,
 });
 
 // 配置 Redux store

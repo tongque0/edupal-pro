@@ -1,0 +1,50 @@
+export const difficultyOptions = [
+  { label: "所有", value: "all" },
+  { value: "简单", label: "简单" },
+  { value: "中等", label: "中等" },
+  { value: "困难", label: "困难" },
+  { value: "混合", label: "混合" },
+];
+
+export const typeOptions = [
+  { label: "所有", value: "all" },
+  { value: "选择题", label: "选择题" },
+  { value: "判断题", label: "判断题" },
+  { value: "计算题", label: "计算题" },
+  { value: "填空题", label: "填空题" },
+];
+export const subjectOptions = [
+  { label: "所有", value: "all" },
+  { value: "数学", label: "数学" },
+  { value: "英语", label: "英语" },
+  { value: "物理", label: "物理" },
+  { value: "化学", label: "化学" },
+  { value: "生物", label: "生物" },
+  { value: "历史", label: "历史" },
+  { value: "地理", label: "地理" },
+  { value: "政治", label: "政治" },
+  { value: "文学", label: "文学" },
+  { value: "艺术", label: "艺术" },
+  { value: "体育", label: "体育" },
+  { value: "音乐", label: "音乐" },
+  { value: "其他", label: "其他" },
+];
+export const gradeOptions = [
+  { label: "所有", value: "all" },
+  { value: "一年级", label: "一年级" },
+  { value: "二年级", label: "二年级" },
+  { value: "三年级", label: "三年级" },
+  { value: "四年级", label: "四年级" },
+  { value: "五年级", label: "五年级" },
+  { value: "六年级", label: "六年级" },
+  { value: "初一", label: "初一" },
+  { value: "初二", label: "初二" },
+  { value: "初三", label: "初三" },
+  { value: "高一", label: "高一" },
+  { value: "高二", label: "高二" },
+  { value: "高三", label: "高三" },
+  { value: "大学", label: "大学" },
+  { value: "研究生", label: "研究生" },
+  { value: "博士", label: "博士" },
+  { value: "其他", label: "其他" },
+];
