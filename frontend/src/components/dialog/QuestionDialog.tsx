@@ -48,6 +48,12 @@ import { useAppSelector, useAppDispatch } from "@/modules/stores";
 import { setTraceEditing, setTraceSourceId } from "@/modules/question";
 import { newQuestion, updateQuestion } from "@/api/question";
 import { toast } from "sonner";
+import {
+  typeOptions,
+  subjectOptions,
+  difficultyOptions,
+  gradeOptions,
+} from "@/types/Options";
 export interface QuestionDetail {
   id?: number;
   question: string;
@@ -328,23 +334,24 @@ const QuestionDialog: React.FC<QuestionDialogProps> = ({
           {/* 元数据字段 - 仅在编辑模式下显示 */}
           {isEdit && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
+                <div className="space-y-2">
                 <Label htmlFor="type">题目类型</Label>
                 <Select
                   value={formData.type}
                   onValueChange={(value) => handleChange("type", value)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="选择类型" />
+                  <SelectValue placeholder="选择类型" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="选择题">选择题</SelectItem>
-                    <SelectItem value="判断题">判断题</SelectItem>
-                    <SelectItem value="填空题">填空题</SelectItem>
-                    <SelectItem value="简答题">简答题</SelectItem>
+                  {typeOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                    </SelectItem>
+                  ))}
                   </SelectContent>
                 </Select>
-              </div>
+                </div>
               <div className="space-y-2">
                 <Label htmlFor="subject">学科</Label>
                 <Select
@@ -355,11 +362,11 @@ const QuestionDialog: React.FC<QuestionDialogProps> = ({
                     <SelectValue placeholder="选择学科" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="数学">数学</SelectItem>
-                    <SelectItem value="科学">科学</SelectItem>
-                    <SelectItem value="地理">地理</SelectItem>
-                    <SelectItem value="历史">历史</SelectItem>
-                    <SelectItem value="语文">语文</SelectItem>
+                  {subjectOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                    </SelectItem>
+                  ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -373,9 +380,11 @@ const QuestionDialog: React.FC<QuestionDialogProps> = ({
                     <SelectValue placeholder="选择难度" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="简单">简单</SelectItem>
-                    <SelectItem value="中等">中等</SelectItem>
-                    <SelectItem value="困难">困难</SelectItem>
+                  {difficultyOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                    </SelectItem>
+                  ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -389,22 +398,11 @@ const QuestionDialog: React.FC<QuestionDialogProps> = ({
                     <SelectValue placeholder="选择年级" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="一年级">一年级</SelectItem>
-                    <SelectItem value="二年级">二年级</SelectItem>
-                    <SelectItem value="三年级">三年级</SelectItem>
-                    <SelectItem value="四年级">四年级</SelectItem>
-                    <SelectItem value="五年级">五年级</SelectItem>
-                    <SelectItem value="六年级">六年级</SelectItem>
-                    <SelectItem value="初一">初一</SelectItem>
-                    <SelectItem value="初二">初二</SelectItem>
-                    <SelectItem value="初三">初三</SelectItem>
-                    <SelectItem value="高一">高一</SelectItem>
-                    <SelectItem value="高二">高二</SelectItem>
-                    <SelectItem value="高三">高三</SelectItem>
-                    <SelectItem value="大学">大学</SelectItem>
-                    <SelectItem value="研究生">研究生</SelectItem>
-                    <SelectItem value="博士">博士</SelectItem>
-                    <SelectItem value="其他">其他</SelectItem>
+                  {gradeOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                    </SelectItem>
+                  ))}
                   </SelectContent>
                 </Select>
               </div>
